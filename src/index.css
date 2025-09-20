@@ -2,9 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Dating App Design System - Beautiful romantic gradients and colors */
 
 @layer base {
   :root {
@@ -17,26 +15,46 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 330 81% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 315 25% 27%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 315 100% 85%;
+    --accent-foreground: 315 25% 27%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 330 20% 90%;
+    --input: 330 20% 95%;
+    --ring: 330 81% 60%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
+
+    /* Dating app specific colors */
+    --love-primary: 330 81% 60%;
+    --love-secondary: 280 100% 70%;
+    --love-accent: 45 100% 70%;
+    --love-warm: 15 100% 70%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--love-primary)) 0%, hsl(var(--love-secondary)) 50%, hsl(var(--love-accent)) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(var(--love-warm)) 0%, hsl(var(--love-primary)) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--accent)) 100%);
+    
+    /* Shadows */
+    --shadow-love: 0 20px 40px -12px hsl(var(--love-primary) / 0.3);
+    --shadow-card: 0 8px 32px -8px hsl(var(--love-primary) / 0.2);
+    --shadow-glow: 0 0 40px hsl(var(--love-primary) / 0.4);
+
+    /* Animations */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
