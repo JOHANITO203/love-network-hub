@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ProfileCard } from "./ProfileCard";
 import { SocialFeed } from "./SocialFeed";
 import { Navigation } from "./Navigation";
+import { ChatInterface } from "./ChatInterface";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,6 +19,7 @@ export const DatingApp = () => {
   const [activeSection, setActiveSection] = useState<NavSection>("discover");
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [socialPosts, setSocialPosts] = useState(mockDatePosts);
+  const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const { toast } = useToast();
   const { signOut, user } = useAuth();
 
@@ -132,7 +134,11 @@ export const DatingApp = () => {
                   </p>
                 </div>
 
-                <Button size="sm" className="bg-gradient-primary">
+                <Button 
+                  size="sm" 
+                  className="bg-gradient-primary"
+                  onClick={() => setSelectedMatch(match)}
+                >
                   <MessageCircle className="w-4 h-4" />
                 </Button>
               </div>
@@ -230,6 +236,17 @@ export const DatingApp = () => {
         return renderDiscoverSection();
     }
   };
+
+  // Show chat interface if a match is selected
+  if (selectedMatch) {
+    return (
+      <ChatInterface
+        matchName={selectedMatch.name}
+        matchAvatar={selectedMatch.avatar}
+        onBack={() => setSelectedMatch(null)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
