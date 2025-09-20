@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Sparkles, Users, Crown } from "lucide-react";
+import { Heart, MessageCircle, Sparkles, Users, Crown, LogOut } from "lucide-react";
 import { mockProfiles, mockDatePosts, mockMatches } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/hero-love.jpg";
 
 type NavSection = "discover" | "matches" | "messages" | "social" | "profile";
@@ -18,6 +19,15 @@ export const DatingApp = () => {
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [socialPosts, setSocialPosts] = useState(mockDatePosts);
   const { toast } = useToast();
+  const { signOut, user } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+  };
 
   const handleLike = (profileId: string) => {
     toast({
@@ -225,13 +235,21 @@ export const DatingApp = () => {
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-lg border-b border-border/50 p-4">
-        <div className="flex items-center justify-center max-w-md mx-auto">
+        <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="flex items-center gap-2">
             <Heart className="w-6 h-6 text-love-primary fill-current" />
             <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               LoveConnect
             </h1>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="w-4 h-4" />
+          </Button>
         </div>
       </header>
 
