@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProfileCard } from "./ProfileCard";
 import { SocialFeed } from "./SocialFeed";
 import { Navigation } from "./Navigation";
 import { ChatInterface } from "./ChatInterface";
+import { ProfileSetup } from "./ProfileSetup";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +12,7 @@ import { Heart, MessageCircle, Sparkles, Users, Crown, LogOut } from "lucide-rea
 import { mockProfiles, mockDatePosts, mockMatches } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-love.jpg";
 
 type NavSection = "discover" | "matches" | "messages" | "social" | "profile";
@@ -20,8 +22,47 @@ export const DatingApp = () => {
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [socialPosts, setSocialPosts] = useState(mockDatePosts);
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [profileSetupComplete, setProfileSetupComplete] = useState(false);
   const { toast } = useToast();
   const { signOut, user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      checkProfileSetup();
+    }
+  }, [user]);
+
+  const checkProfileSetup = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+
+      if (data && data.first_name && data.last_name) {
+        setUserProfile(data);
+        setProfileSetupComplete(true);
+      } else {
+        setProfileSetupComplete(false);
+      }
+    } catch (error) {
+      console.error('Error checking profile setup:', error);
+      setProfileSetupComplete(false);
+    }
+  };
+
+  const handleProfileComplete = (profile: any) => {
+    setUserProfile(profile);
+    setProfileSetupComplete(true);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -166,10 +207,14 @@ export const DatingApp = () => {
     <div className="p-4 pb-20 max-w-md mx-auto">
       <div className="text-center mb-6">
         <Avatar className="w-24 h-24 mx-auto mb-4">
-          <AvatarImage src={mockProfiles[0].images[0]} />
-          <AvatarFallback>You</AvatarFallback>
+          <AvatarImage src={userProfile?.profile_images?.[0] || ''} />
+          <AvatarFallback>
+            {userProfile?.first_name?.[0] || user?.email?.[0] || 'U'}
+          </AvatarFallback>
         </Avatar>
-        <h2 className="text-2xl font-bold mb-1">Your Profile</h2>
+        <h2 className="text-2xl font-bold mb-1">
+          {userProfile?.first_name || 'Your Profile'}
+        </h2>
         <p className="text-muted-foreground">Show your best self</p>
       </div>
 
@@ -197,7 +242,11 @@ export const DatingApp = () => {
       </Card>
 
       <div className="space-y-3">
-        <Button variant="outline" className="w-full">
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => setProfileSetupComplete(false)}
+        >
           Edit Profile
         </Button>
         <Button variant="outline" className="w-full">
@@ -236,6 +285,11 @@ export const DatingApp = () => {
         return renderDiscoverSection();
     }
   };
+
+  // Show profile setup if not complete
+  if (!profileSetupComplete) {
+    return <ProfileSetup onProfileComplete={handleProfileComplete} />;
+  }
 
   // Show chat interface if a match is selected
   if (selectedMatch) {
