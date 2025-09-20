@@ -20,6 +20,7 @@ export type Database = {
           astrological_sign: string | null
           bio: string | null
           created_at: string
+          date_of_birth: string | null
           first_name: string | null
           id: string
           interests: string[] | null
@@ -35,6 +36,7 @@ export type Database = {
           astrological_sign?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           first_name?: string | null
           id?: string
           interests?: string[] | null
@@ -50,6 +52,7 @@ export type Database = {
           astrological_sign?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           first_name?: string | null
           id?: string
           interests?: string[] | null
