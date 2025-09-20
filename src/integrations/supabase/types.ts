@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      matches: {
+        Row: {
+          id: string
+          is_active: boolean | null
+          last_message_at: string | null
+          matched_at: string | null
+          user1_id: string
+          user2_id: string
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean | null
+          last_message_at?: string | null
+          matched_at?: string | null
+          user1_id: string
+          user2_id: string
+        }
+        Update: {
+          id?: string
+          is_active?: boolean | null
+          last_message_at?: string | null
+          matched_at?: string | null
+          user1_id?: string
+          user2_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
@@ -61,6 +88,63 @@ export type Database = {
           profession?: string | null
           profile_images?: string[] | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_interactions: {
+        Row: {
+          created_at: string | null
+          from_user_id: string
+          id: string
+          interaction_type: string
+          to_user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          from_user_id: string
+          id?: string
+          interaction_type: string
+          to_user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          from_user_id?: string
+          id?: string
+          interaction_type?: string
+          to_user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          interested_in: string[] | null
+          max_age: number | null
+          max_distance: number | null
+          min_age: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          interested_in?: string[] | null
+          max_age?: number | null
+          max_distance?: number | null
+          min_age?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          interested_in?: string[] | null
+          max_age?: number | null
+          max_distance?: number | null
+          min_age?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []

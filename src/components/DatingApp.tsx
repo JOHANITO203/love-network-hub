@@ -4,14 +4,17 @@ import { SocialFeed } from "./SocialFeed";
 import { Navigation } from "./Navigation";
 import { ChatInterface } from "./ChatInterface";
 import { ProfileSetup } from "./ProfileSetup";
+import { MatchingProfileCard } from "./MatchingProfileCard";
+import { MatchingPreferences } from "./MatchingPreferences";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Sparkles, Users, Crown, LogOut } from "lucide-react";
+import { Heart, MessageCircle, Sparkles, Users, Crown, LogOut, Settings, RefreshCw } from "lucide-react";
 import { mockProfiles, mockDatePosts, mockMatches } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useMatching } from "@/hooks/useMatching";
 import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-love.jpg";
 
@@ -24,8 +27,20 @@ export const DatingApp = () => {
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [profileSetupComplete, setProfileSetupComplete] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  
   const { toast } = useToast();
   const { signOut, user } = useAuth();
+  const { 
+    currentProfile, 
+    potentialMatches, 
+    userPreferences, 
+    loading: matchingLoading,
+    handleLike, 
+    handlePass, 
+    updatePreferences,
+    loadPotentialMatches 
+  } = useMatching();
 
   useEffect(() => {
     if (user) {
@@ -72,7 +87,7 @@ export const DatingApp = () => {
     });
   };
 
-  const handleLike = (profileId: string) => {
+  const handleLikeOld = (profileId: string) => {
     toast({
       title: "It's a match! 💕",
       description: "You and this person liked each other!",
@@ -86,7 +101,7 @@ export const DatingApp = () => {
     }
   };
 
-  const handlePass = (profileId: string) => {
+  const handlePassOld = (profileId: string) => {
     // Move to next profile
     if (currentProfileIndex < mockProfiles.length - 1) {
       setCurrentProfileIndex(currentProfileIndex + 1);
@@ -122,18 +137,61 @@ export const DatingApp = () => {
   const renderDiscoverSection = () => (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] p-4">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-          Find Your Match
-        </h1>
-        <p className="text-muted-foreground">Discover amazing people near you</p>
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            Découvrir
+          </h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPreferences(true)}
+            className="text-muted-foreground hover:text-primary"
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
+        </div>
+        <p className="text-muted-foreground">Trouvez votre match parfait</p>
       </div>
       
-      {mockProfiles.length > 0 && (
-        <ProfileCard
-          profile={mockProfiles[currentProfileIndex]}
+      {matchingLoading ? (
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Recherche de profils compatibles...</p>
+        </div>
+      ) : currentProfile ? (
+        <MatchingProfileCard
+          profile={currentProfile}
           onLike={handleLike}
           onPass={handlePass}
         />
+      ) : (
+        <div className="text-center space-y-4">
+          <div className="w-24 h-24 rounded-full bg-gradient-primary mx-auto flex items-center justify-center">
+            <Heart className="w-12 h-12 text-white fill-current" />
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold mb-2">Plus de profils pour le moment</h3>
+            <p className="text-muted-foreground mb-4">
+              Revenez plus tard ou ajustez vos préférences
+            </p>
+            <div className="flex gap-2 justify-center">
+              <Button
+                onClick={() => setShowPreferences(true)}
+                variant="outline"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Préférences
+              </Button>
+              <Button
+                onClick={loadPotentialMatches}
+                className="bg-gradient-primary"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Actualiser
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -285,6 +343,17 @@ export const DatingApp = () => {
         return renderDiscoverSection();
     }
   };
+
+  // Show preferences if requested
+  if (showPreferences) {
+    return (
+      <MatchingPreferences
+        preferences={userPreferences}
+        onUpdatePreferences={updatePreferences}
+        onBack={() => setShowPreferences(false)}
+      />
+    );
+  }
 
   // Show profile setup if not complete
   if (!profileSetupComplete) {
