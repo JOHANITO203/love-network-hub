@@ -124,7 +124,16 @@ export const mockDatePosts: DatePost[] = [
   }
 ];
 
-export const mockMatches = [
+export interface MatchSummary {
+  id: string;
+  name: string;
+  avatar: string;
+  lastMessage: string;
+  timeAgo: string;
+  isOnline: boolean;
+}
+
+export const mockMatches: MatchSummary[] = [
   {
     id: "m1",
     name: "Emma",

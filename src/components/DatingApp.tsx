@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ProfileCard } from "./ProfileCard";
 import { SocialFeed } from "./SocialFeed";
 import { Navigation } from "./Navigation";
@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Heart, MessageCircle, Sparkles, Users, Crown, LogOut, Settings, RefreshCw } from "lucide-react";
-import { mockProfiles, mockDatePosts, mockMatches } from "@/data/mockData";
+import { mockProfiles, mockDatePosts, mockMatches, type MatchSummary } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useMatching } from "@/hooks/useMatching";
@@ -22,12 +22,30 @@ import heroImage from "@/assets/hero-love.jpg";
 
 type NavSection = "discover" | "matches" | "messages" | "social" | "profile";
 
+interface UserProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  profile_images: string[] | null;
+}
+
+interface SupabaseProfileRow extends UserProfile {
+  profile_images: string[] | null;
+}
+
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+};
+
 export const DatingApp = () => {
   const [activeSection, setActiveSection] = useState<NavSection>("discover");
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [socialPosts, setSocialPosts] = useState(mockDatePosts);
-  const [selectedMatch, setSelectedMatch] = useState<any>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [selectedMatch, setSelectedMatch] = useState<MatchSummary | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileSetupComplete, setProfileSetupComplete] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
@@ -45,18 +63,12 @@ export const DatingApp = () => {
     loadPotentialMatches 
   } = useMatching();
 
-  useEffect(() => {
-    if (user) {
-      checkProfileSetup();
-    }
-  }, [user]);
-
-  const checkProfileSetup = async () => {
+  const checkProfileSetup = useCallback(async () => {
     if (!user) return;
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from<SupabaseProfileRow>('profiles')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
@@ -66,10 +78,17 @@ export const DatingApp = () => {
       }
 
       if (data && data.first_name && data.last_name) {
-        setUserProfile(data);
+        const normalizedProfile: UserProfile = {
+          id: data.id,
+          first_name: data.first_name ?? null,
+          last_name: data.last_name ?? null,
+          profile_images: data.profile_images ?? null
+        };
+        setUserProfile(normalizedProfile);
         setProfileSetupComplete(true);
         setIsEditingProfile(false);
       } else {
+        setUserProfile(null);
         setProfileSetupComplete(false);
         setIsEditingProfile(false);
       }
@@ -77,10 +96,17 @@ export const DatingApp = () => {
       console.error('Error checking profile setup:', error);
       setProfileSetupComplete(false);
       setIsEditingProfile(false);
+      setUserProfile(null);
     }
-  };
+  }, [user]);
 
-  const handleProfileComplete = (profile: any) => {
+  useEffect(() => {
+    if (user) {
+      checkProfileSetup();
+    }
+  }, [user, checkProfileSetup]);
+
+  const handleProfileComplete = (profile: UserProfile & { profile_images: string[] | null }) => {
     // Debug forcé dans console
     console.log('🚀 [FINALISATION] Profile completed:', profile);
     console.log('🚀 [FINALISATION] Profile type:', typeof profile);
@@ -88,18 +114,24 @@ export const DatingApp = () => {
     console.log('🚀 [FINALISATION] first_name:', profile?.first_name);
     console.log('🚀 [FINALISATION] profileSetupComplete avant:', profileSetupComplete);
 
-    (window as any).addDebugLog?.('=== FINALISATION PROFIL ===');
-    (window as any).addDebugLog?.('Profil reçu: ' + JSON.stringify(profile).slice(0, 100));
-    (window as any).addDebugLog?.('first_name: ' + profile?.first_name);
+    window.addDebugLog?.('=== FINALISATION PROFIL ===');
+    window.addDebugLog?.('Profil reçu: ' + JSON.stringify(profile).slice(0, 100));
+    window.addDebugLog?.('first_name: ' + profile?.first_name);
 
     try {
       console.log('🚀 [FINALISATION] Étape 1: setUserProfile');
-      setUserProfile(profile);
+      const normalizedProfile: UserProfile = {
+        id: profile.id,
+        first_name: profile.first_name ?? null,
+        last_name: profile.last_name ?? null,
+        profile_images: profile.profile_images ?? null
+      };
+      setUserProfile(normalizedProfile);
 
       // PROTECTION: ne pas changer profileSetupComplete si profile est vide
       if (!profile || !profile.first_name) {
         console.error('🚀 [FINALISATION] ERREUR: Profil invalide - on ne change pas profileSetupComplete');
-        (window as any).addDebugLog?.('ERREUR: Profil invalide, finalisation annulée');
+        window.addDebugLog?.('ERREUR: Profil invalide, finalisation annulée');
         return;
       }
 
@@ -109,11 +141,11 @@ export const DatingApp = () => {
 
       console.log('🚀 [FINALISATION] Profile setup marked as complete');
       console.log('🚀 [FINALISATION] profileSetupComplete après:', true);
-      (window as any).addDebugLog?.('setProfileSetupComplete(true) OK');
-      (window as any).addDebugLog?.('Configuration profil terminée ✅');
+      window.addDebugLog?.('setProfileSetupComplete(true) OK');
+      window.addDebugLog?.('Configuration profil terminée ✅');
     } catch (error) {
       console.error('🚀 [FINALISATION] Error in handleProfileComplete:', error);
-      (window as any).addDebugLog?.('Erreur finalisation profil: ' + error);
+      window.addDebugLog?.('Erreur finalisation profil: ' + getErrorMessage(error));
       toast({
         title: "Erreur",
         description: "Erreur lors de la finalisation du profil",
