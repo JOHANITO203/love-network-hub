@@ -4,8 +4,10 @@ import { SocialFeed } from "./SocialFeed";
 import { Navigation } from "./Navigation";
 import { ChatInterface } from "./ChatInterface";
 import { ProfileSetup } from "./ProfileSetup";
+import { DebugPanel } from "./DebugPanel";
 import { MatchingProfileCard } from "./MatchingProfileCard";
 import { MatchingPreferences } from "./MatchingPreferences";
+import { NotificationCenter } from "./NotificationCenter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +29,7 @@ export const DatingApp = () => {
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [profileSetupComplete, setProfileSetupComplete] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   
   const { toast } = useToast();
@@ -65,18 +68,58 @@ export const DatingApp = () => {
       if (data && data.first_name && data.last_name) {
         setUserProfile(data);
         setProfileSetupComplete(true);
+        setIsEditingProfile(false);
       } else {
         setProfileSetupComplete(false);
+        setIsEditingProfile(false);
       }
     } catch (error) {
       console.error('Error checking profile setup:', error);
       setProfileSetupComplete(false);
+      setIsEditingProfile(false);
     }
   };
 
   const handleProfileComplete = (profile: any) => {
-    setUserProfile(profile);
-    setProfileSetupComplete(true);
+    // Debug forcé dans console
+    console.log('🚀 [FINALISATION] Profile completed:', profile);
+    console.log('🚀 [FINALISATION] Profile type:', typeof profile);
+    console.log('🚀 [FINALISATION] Profile keys:', Object.keys(profile || {}));
+    console.log('🚀 [FINALISATION] first_name:', profile?.first_name);
+    console.log('🚀 [FINALISATION] profileSetupComplete avant:', profileSetupComplete);
+
+    (window as any).addDebugLog?.('=== FINALISATION PROFIL ===');
+    (window as any).addDebugLog?.('Profil reçu: ' + JSON.stringify(profile).slice(0, 100));
+    (window as any).addDebugLog?.('first_name: ' + profile?.first_name);
+
+    try {
+      console.log('🚀 [FINALISATION] Étape 1: setUserProfile');
+      setUserProfile(profile);
+
+      // PROTECTION: ne pas changer profileSetupComplete si profile est vide
+      if (!profile || !profile.first_name) {
+        console.error('🚀 [FINALISATION] ERREUR: Profil invalide - on ne change pas profileSetupComplete');
+        (window as any).addDebugLog?.('ERREUR: Profil invalide, finalisation annulée');
+        return;
+      }
+
+      console.log('🚀 [FINALISATION] Étape 2: setProfileSetupComplete(true)');
+      setProfileSetupComplete(true);
+      setIsEditingProfile(false);
+
+      console.log('🚀 [FINALISATION] Profile setup marked as complete');
+      console.log('🚀 [FINALISATION] profileSetupComplete après:', true);
+      (window as any).addDebugLog?.('setProfileSetupComplete(true) OK');
+      (window as any).addDebugLog?.('Configuration profil terminée ✅');
+    } catch (error) {
+      console.error('🚀 [FINALISATION] Error in handleProfileComplete:', error);
+      (window as any).addDebugLog?.('Erreur finalisation profil: ' + error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la finalisation du profil",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSignOut = async () => {
@@ -303,7 +346,10 @@ export const DatingApp = () => {
         <Button 
           variant="outline" 
           className="w-full"
-          onClick={() => setProfileSetupComplete(false)}
+          onClick={() => {
+            setIsEditingProfile(true);
+            setProfileSetupComplete(false);
+          }}
         >
           Edit Profile
         </Button>
@@ -357,7 +403,16 @@ export const DatingApp = () => {
 
   // Show profile setup if not complete
   if (!profileSetupComplete) {
-    return <ProfileSetup onProfileComplete={handleProfileComplete} />;
+    return (
+      <ProfileSetup
+        onProfileComplete={handleProfileComplete}
+        onExit={isEditingProfile ? () => {
+          setProfileSetupComplete(true);
+          setIsEditingProfile(false);
+          checkProfileSetup();
+        } : undefined}
+      />
+    );
   }
 
   // Show chat interface if a match is selected
@@ -379,17 +434,20 @@ export const DatingApp = () => {
           <div className="flex items-center gap-2">
             <Heart className="w-6 h-6 text-love-primary fill-current" />
             <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              LoveConnect
+              МойDate
             </h1>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationCenter />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -403,6 +461,9 @@ export const DatingApp = () => {
         activeSection={activeSection}
         onSectionChange={setActiveSection}
       />
+
+      {/* Debug Panel - visible partout */}
+      <DebugPanel />
     </div>
   );
 };

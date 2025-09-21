@@ -1,23 +1,37 @@
-import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { useState, useEffect, useCallback } from 'react';
+import { format, parse, isValid } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ImageUpload } from './ImageUpload';
-import { astrologicalSigns, interests, professionCategories } from '@/data/profileOptions';
-import { Heart, CalendarIcon, User, MapPin, Briefcase, Star, Sparkles } from 'lucide-react';
+import { ModernDatePicker, DateInfo } from './ModernDatePicker';
+import { DebugPanel } from './DebugPanel';
+import { interests } from '@/data/profileOptions';
+import {
+  Heart,
+  User,
+  MapPin,
+  Briefcase,
+  Sparkles,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronLeft,
+  Save,
+  Camera,
+  Gift,
+  Target,
+  Cloud,
+  Home
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Profile {
@@ -34,11 +48,128 @@ interface Profile {
   profile_images: string[];
 }
 
+type SupabaseProfileRow = {
+  id: string;
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  age: number | null;
+  date_of_birth: string | null;
+  bio: string | null;
+  location: string | null;
+  profession: string | null;
+  astrological_sign: string | null;
+  interests: string[] | null;
+  profile_images: string[] | null;
+};
+
+type SupabaseProfileUpsert = {
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  date_of_birth: string | null;
+  bio: string | null;
+  location: string | null;
+  profession: string | null;
+  astrological_sign: string | null;
+  interests: string[];
+  profile_images: string[];
+};
+
+const DATE_STORAGE_FORMAT = 'yyyy-MM-dd';
+
+const formatDateForStorage = (date: Date | null): string | null => {
+  if (!date) {
+    return null;
+  }
+
+  return format(date, DATE_STORAGE_FORMAT);
+};
+
+const parseDateFromStorage = (value: string | null): Date | null => {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = parse(value, DATE_STORAGE_FORMAT, new Date());
+  return isValid(parsed) ? parsed : null;
+};
+
+const logDebug = (message: string) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.addDebugLog?.(message);
+};
+
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+
+  return 'Une erreur inattendue est survenue.';
+};
+
+const getErrorCode = (error: unknown): string | undefined => {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as { code?: unknown }).code === 'string'
+  ) {
+    return (error as { code: string }).code;
+  }
+
+  return undefined;
+};
+
 interface ProfileSetupProps {
   onProfileComplete: (profile: Profile) => void;
+  onExit?: () => void;
 }
 
-export const ProfileSetup = ({ onProfileComplete }: ProfileSetupProps) => {
+const STEPS = [
+  {
+    id: 1,
+    title: 'Informations personnelles',
+    description: 'Parlez-nous de vous',
+    icon: User,
+    color: 'text-blue-600'
+  },
+  {
+    id: 2,
+    title: 'Date d\'anniversaire',
+    description: 'Votre âge et signe astrologique',
+    icon: Gift,
+    color: 'text-purple-600'
+  },
+  {
+    id: 3,
+    title: 'Photos et présentation',
+    description: 'Montrez votre personnalité',
+    icon: Camera,
+    color: 'text-green-600'
+  },
+  {
+    id: 4,
+    title: 'Centres d\'intérêt',
+    description: 'Ce qui vous passionne',
+    icon: Target,
+    color: 'text-orange-600'
+  }
+];
+
+export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) => {
   const [profile, setProfile] = useState<Profile>({
     id: '',
     first_name: '',
@@ -52,25 +183,70 @@ export const ProfileSetup = ({ onProfileComplete }: ProfileSetupProps) => {
     interests: [],
     profile_images: []
   });
+
   const [currentStep, setCurrentStep] = useState(1);
+  console.log('🎯 [RENDER] ProfileSetup rendered, currentStep:', currentStep);
   const totalSteps = 4;
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [stepValidation, setStepValidation] = useState<Record<number, boolean>>({});
   const { toast } = useToast();
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      fetchProfile();
-    }
-  }, [user]);
+    const validations = {
+      1: Boolean(profile.first_name && profile.last_name && profile.location && profile.profession),
+      2: Boolean(profile.date_of_birth && typeof profile.age === 'number' && profile.age >= 18),
+      3: Boolean(profile.bio && profile.bio.length >= 20 && profile.profile_images.length > 0),
+      4: profile.interests.length >= 3
+    } as const;
 
-  const fetchProfile = async () => {
-    if (!user) return;
+    setStepValidation(prev => {
+      const next = { ...prev } as Record<number, boolean>;
+      let hasChanged = false;
+
+      if (next[1] !== validations[1]) {
+        next[1] = validations[1];
+        hasChanged = true;
+      }
+
+      if (next[2] !== validations[2]) {
+        next[2] = validations[2];
+        hasChanged = true;
+      }
+
+      if (next[3] !== validations[3]) {
+        next[3] = validations[3];
+        hasChanged = true;
+      }
+
+      if (next[4] !== validations[4]) {
+        next[4] = validations[4];
+        hasChanged = true;
+      }
+
+      return hasChanged ? next : prev;
+    });
+  }, [
+    profile.first_name,
+    profile.last_name,
+    profile.location,
+    profile.profession,
+    profile.date_of_birth,
+    profile.age,
+    profile.bio,
+    profile.profile_images.length,
+    profile.interests.length
+  ]);
+
+  const fetchProfile = useCallback(async () => {
+    if (!user) {
+      return;
+    }
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from<SupabaseProfileRow>('profiles')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
@@ -80,53 +256,160 @@ export const ProfileSetup = ({ onProfileComplete }: ProfileSetupProps) => {
       }
 
       if (data) {
+        console.log('Profile data found:', data);
+        logDebug(`Données profil trouvées: ${JSON.stringify(data).slice(0, 100)}`);
+
         setProfile({
           id: data.id,
-          first_name: data.first_name || '',
-          last_name: data.last_name || '',
+          first_name: data.first_name ?? '',
+          last_name: data.last_name ?? '',
           age: data.age,
-          date_of_birth: data.date_of_birth ? new Date(data.date_of_birth) : null,
-          bio: data.bio || '',
-          location: data.location || '',
-          profession: data.profession || '',
-          astrological_sign: data.astrological_sign || '',
-          interests: data.interests || [],
-          profile_images: data.profile_images || []
+          date_of_birth: parseDateFromStorage(data.date_of_birth),
+          bio: data.bio ?? '',
+          location: data.location ?? '',
+          profession: data.profession ?? '',
+          astrological_sign: data.astrological_sign ?? '',
+          interests: data.interests ?? [],
+          profile_images: data.profile_images ?? []
         });
+
+        logDebug(`Images: ${(data.profile_images ?? []).length}`);
+      } else {
+        console.log('No existing profile found');
+        logDebug('Aucun profil existant');
       }
-    } catch (error: any) {
+    } catch (error) {
+      const description = getErrorMessage(error);
+
       toast({
-        title: "Error loading profile",
-        description: error.message,
+        title: "Erreur de chargement",
+        description,
         variant: "destructive",
       });
+      logDebug(`Erreur de chargement: ${description}`);
     } finally {
       setInitialLoading(false);
     }
+  }, [toast, user]);
+
+  useEffect(() => {
+    if (!user) {
+      setInitialLoading(false);
+      return;
+    }
+
+    console.log('Loading profile for user:', user.id);
+    logDebug(`Chargement profil pour: ${user.id}`);
+    fetchProfile();
+  }, [fetchProfile, user]);
+    const handleDateChange = useCallback(({ date, age, zodiacSign }: DateInfo) => {
+    console.log('?? [DATE] handleDateChange called with:', date, age, zodiacSign);
+
+    setProfile(prev => {
+      const prevDateTime = prev.date_of_birth ? prev.date_of_birth.getTime() : null;
+      const nextDateTime = date ? date.getTime() : null;
+
+      if (
+        prevDateTime === nextDateTime &&
+        prev.age === age &&
+        prev.astrological_sign === (zodiacSign || '')
+      ) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        date_of_birth: date,
+        age: age ?? null,
+        astrological_sign: zodiacSign || ''
+      };
+    });
+  }, []);
+
+  const handleInterestToggle = (interest: string) => {
+    setProfile(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(i => i !== interest)
+        : [...prev.interests, interest]
+    }));
   };
 
-  const updateProfile = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!user) return;
+  const handleNext = () => {
+    console.log('🔥 [NEXT] handleNext appelé');
+    console.log('🔥 [NEXT] currentStep:', currentStep);
+    console.log('🔥 [NEXT] totalSteps:', totalSteps);
+    console.log('🔥 [NEXT] stepValidation:', stepValidation);
+    console.log('🔥 [NEXT] stepValidation[currentStep]:', stepValidation[currentStep]);
+
+    logDebug(`🔥 NEXT: Étape ${currentStep} -> ${currentStep + 1}`);
+
+    if (stepValidation[currentStep] && currentStep < totalSteps) {
+      console.log('🔥 [NEXT] Conditions OK, changement d\'étape');
+      setCurrentStep(prev => {
+        const newStep = prev + 1;
+        console.log('🔥 [NEXT] Nouvelle étape:', newStep);
+        logDebug(`🔥 NEXT: Passage à l'étape ${newStep}`);
+        return newStep;
+      });
+    } else {
+      console.log('🔥 [NEXT] Conditions NOK - pas de changement');
+      logDebug('🔥 NEXT: Conditions non remplies');
+    }
+  };
+
+  const handlePrevious = () => {
+    console.log('Previous button clicked, current step:', currentStep);
+    logDebug(`Bouton précédent cliqué, étape: ${currentStep}`);
+    if (currentStep > 1) {
+      setCurrentStep(prev => {
+        const newStep = prev - 1;
+        console.log('Moving to step:', newStep);
+        logDebug(`Passage à l'étape: ${newStep}`);
+        return newStep;
+      });
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!stepValidation[4]) {
+      toast({
+        title: "Profil incomplet",
+        description: "Veuillez compléter tous les champs requis.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: "Utilisateur non identifié",
+        description: "Veuillez vous reconnecter avant de finaliser votre profil.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
 
     try {
+      const profileData: SupabaseProfileUpsert = {
+        user_id: user.id,
+        first_name: profile.first_name || null,
+        last_name: profile.last_name || null,
+        date_of_birth: formatDateForStorage(profile.date_of_birth),
+        bio: profile.bio || null,
+        location: profile.location || null,
+        profession: profile.profession || null,
+        astrological_sign: profile.astrological_sign || null,
+        interests: profile.interests,
+        profile_images: profile.profile_images
+      };
+
       const { data, error } = await supabase
-        .from('profiles')
-        .upsert({
-          user_id: user.id,
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          date_of_birth: profile.date_of_birth?.toISOString().split('T')[0] || null,
-          bio: profile.bio,
-          location: profile.location,
-          profession: profile.profession,
-          astrological_sign: profile.astrological_sign,
-          interests: profile.interests,
-          profile_images: profile.profile_images
-        })
-        .select()
+        .from<SupabaseProfileRow>('profiles')
+        .upsert(profileData, { onConflict: 'user_id' })
+        .select('*')
         .single();
 
       if (error) {
@@ -134,350 +417,462 @@ export const ProfileSetup = ({ onProfileComplete }: ProfileSetupProps) => {
       }
 
       toast({
-        title: "Profile updated!",
-        description: "Your profile has been saved successfully.",
+        title: "Profil créé ! 🎉",
+        description: "Bienvenue sur LoveDate ! Votre profil est maintenant actif.",
       });
 
-      // Convert data to Profile format for callback
-      const profileForCallback: Profile = {
-        id: data.id,
-        first_name: data.first_name || '',
-        last_name: data.last_name || '',
-        age: data.age,
-        date_of_birth: data.date_of_birth ? new Date(data.date_of_birth) : null,
-        bio: data.bio || '',
-        location: data.location || '',
-        profession: data.profession || '',
-        astrological_sign: data.astrological_sign || '',
-        interests: data.interests || [],
-        profile_images: data.profile_images || []
-      };
+      if (data) {
+        console.log('Calling onProfileComplete with:', { ...profile, id: data.id });
+        logDebug(`Appel onProfileComplete avec profil: ${profile.first_name}`);
 
-      onProfileComplete(profileForCallback);
-    } catch (error: any) {
+        onProfileComplete({
+          ...profile,
+          id: data.id
+        });
+
+        logDebug('onProfileComplete appelé avec succès');
+      }
+    } catch (error) {
+      const description = getErrorMessage(error);
+
       toast({
-        title: "Error updating profile",
-        description: error.message,
+        title: "Erreur de sauvegarde",
+        description,
         variant: "destructive",
       });
+      logDebug(`Erreur de sauvegarde: ${description}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleImageUpdate = (imageUrl: string) => {
-    const updatedImages = imageUrl 
-      ? [...profile.profile_images.filter(img => img !== imageUrl), imageUrl]
-      : profile.profile_images.slice(0, -1);
-    
-    setProfile(prev => ({
-      ...prev,
-      profile_images: updatedImages
-    }));
-  };
+  // Fonction de sauvegarde automatique (sans validation stricte)
+  const autoSaveProfile = async (profileData: Profile): Promise<boolean> => {
+    if (!user) {
+      return false;
+    }
 
-  const toggleInterest = (interestValue: string) => {
-    setProfile(prev => ({
-      ...prev,
-      interests: prev.interests.includes(interestValue)
-        ? prev.interests.filter(i => i !== interestValue)
-        : [...prev.interests, interestValue]
-    }));
-  };
+    try {
+      const dataToSave: SupabaseProfileUpsert = {
+        user_id: user.id,
+        first_name: profileData.first_name || null,
+        last_name: profileData.last_name || null,
+        date_of_birth: formatDateForStorage(profileData.date_of_birth),
+        bio: profileData.bio || null,
+        location: profileData.location || null,
+        profession: profileData.profession || null,
+        astrological_sign: profileData.astrological_sign || null,
+        interests: profileData.interests,
+        profile_images: profileData.profile_images
+      };
 
-  const getCompletionPercentage = () => {
-    const fields = [
-      profile.first_name,
-      profile.last_name,
-      profile.date_of_birth,
-      profile.bio,
-      profile.location,
-      profile.profession,
-      profile.profile_images.length > 0,
-      profile.interests.length > 0
-    ];
-    const filledFields = fields.filter(Boolean).length;
-    return Math.round((filledFields / fields.length) * 100);
-  };
+      console.log('Auto-saving profile data:', dataToSave);
+      logDebug('Auto-sauvegarde en cours...');
+      logDebug(`Date formatée: ${dataToSave.date_of_birth ?? 'null'}`);
 
-  const canProceedToNext = () => {
-    switch (currentStep) {
-      case 1: return profile.first_name && profile.last_name && profile.date_of_birth;
-      case 2: return profile.profile_images.length > 0;
-      case 3: return profile.location && profile.profession;
-      case 4: return profile.bio && profile.interests.length > 0;
-      default: return false;
+      const { error: upsertError } = await supabase
+        .from<SupabaseProfileRow>('profiles')
+        .upsert(dataToSave, { onConflict: 'user_id' });
+
+      if (upsertError) {
+        const message = getErrorMessage(upsertError);
+        const code = getErrorCode(upsertError);
+
+        console.error('Auto-save error:', upsertError);
+        logDebug(`Erreur auto-save: ${message}`);
+        if (code) {
+          logDebug(`Code erreur: ${code}`);
+        }
+        return false;
+      }
+
+      console.log('Auto-save successful');
+      logDebug('Auto-sauvegarde réussie ✅');
+      return true;
+    } catch (error) {
+      console.error('Auto-save error:', error);
+      logDebug(`Auto-save exception: ${getErrorMessage(error)}`);
+      return false;
     }
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <User className="w-12 h-12 text-primary mx-auto mb-2" />
-              <h3 className="text-xl font-semibold">Informations de base</h3>
-              <p className="text-muted-foreground">Comment vous appelez-vous ?</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Prénom *</Label>
-                <Input
-                  id="firstName"
-                  value={profile.first_name}
-                  onChange={(e) => setProfile(prev => ({ ...prev, first_name: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Nom *</Label>
-                <Input
-                  id="lastName"
-                  value={profile.last_name}
-                  onChange={(e) => setProfile(prev => ({ ...prev, last_name: e.target.value }))}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Date de naissance *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !profile.date_of_birth && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {profile.date_of_birth ? (
-                      format(profile.date_of_birth, "dd MMMM yyyy", { locale: fr })
-                    ) : (
-                      <span>Choisir une date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={profile.date_of_birth || undefined}
-                    onSelect={(date) => setProfile(prev => ({ ...prev, date_of_birth: date || null }))}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Signe astrologique</Label>
-              <Select
-                value={profile.astrological_sign}
-                onValueChange={(value) => setProfile(prev => ({ ...prev, astrological_sign: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choisir votre signe" />
-                </SelectTrigger>
-                <SelectContent>
-                  {astrologicalSigns.map((sign) => (
-                    <SelectItem key={sign.value} value={sign.value}>
-                      {sign.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <Sparkles className="w-12 h-12 text-primary mx-auto mb-2" />
-              <h3 className="text-xl font-semibold">Votre photo de profil</h3>
-              <p className="text-muted-foreground">Montrez votre plus beau sourire !</p>
-            </div>
-
-            <div className="flex justify-center">
-              <ImageUpload
-                currentImage={profile.profile_images[0]}
-                onImageUpdate={handleImageUpdate}
-                size="lg"
-              />
-            </div>
-
-            <div className="text-center text-sm text-muted-foreground">
-              <p>💡 Conseil : Une photo souriante et récente fonctionne mieux !</p>
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
-              <h3 className="text-xl font-semibold">Où êtes-vous ?</h3>
-              <p className="text-muted-foreground">Votre localisation et profession</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="location">Localisation *</Label>
-                <Input
-                  id="location"
-                  value={profile.location}
-                  onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="Paris, France"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="profession">Profession *</Label>
-                <Input
-                  id="profession"
-                  value={profile.profession}
-                  onChange={(e) => setProfile(prev => ({ ...prev, profession: e.target.value }))}
-                  placeholder="Que faites-vous dans la vie ?"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <Star className="w-12 h-12 text-primary mx-auto mb-2" />
-              <h3 className="text-xl font-semibold">Parlez de vous</h3>
-              <p className="text-muted-foreground">Vos passions et votre personnalité</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio *</Label>
-                <Textarea
-                  id="bio"
-                  value={profile.bio}
-                  onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
-                  placeholder="Décrivez-vous en quelques mots..."
-                  rows={4}
-                  required
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label>Centres d'intérêt * (minimum 1)</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {interests.map((interest) => (
-                    <Badge
-                      key={interest.value}
-                      variant={profile.interests.includes(interest.value) ? "default" : "outline"}
-                      className={cn(
-                        "cursor-pointer justify-start p-2 h-auto",
-                        profile.interests.includes(interest.value) && "bg-gradient-primary"
-                      )}
-                      onClick={() => toggleInterest(interest.value)}
-                    >
-                      <span className="mr-2">{interest.icon}</span>
-                      {interest.label.split(' ')[1]}
-                    </Badge>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {profile.interests.length} sélectionné(s)
-                </p>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
+  // Configuration de l'auto-sauvegarde
+  const { saveNow, isSaving } = useAutoSave<Profile>({
+    data: profile,
+    saveFunction: autoSaveProfile,
+    delay: 3000, // 3 secondes après modification
+    enabled: true,
+    onSaveSuccess: () => {
+      console.log('Profile auto-saved successfully');
+    },
+    onSaveError: (error) => {
+      console.error('Auto-save failed:', error);
+      logDebug(`Auto-save callback error: ${getErrorMessage(error)}`);
     }
-  };
+  });
+
+  const handleExit = useCallback(async () => {
+    if (!onExit) {
+      return;
+    }
+
+    try {
+      await saveNow();
+    } catch (error) {
+      console.error('Manual exit save error:', error);
+      logDebug(`Manual exit save error: ${getErrorMessage(error)}`);
+    } finally {
+      onExit();
+    }
+  }, [onExit, saveNow]);
 
   if (initialLoading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
+          <p className="text-muted-foreground">Chargement de votre profil...</p>
         </div>
       </div>
     );
   }
 
+  const currentStepData = STEPS[currentStep - 1];
+  const progressPercentage = (currentStep / totalSteps) * 100;
+
   return (
-    <div className="min-h-screen bg-gradient-subtle p-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Heart className="h-8 w-8 text-primary fill-primary" />
-            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Créez votre profil
-            </h1>
+    <div className="min-h-screen bg-gradient-subtle">
+      {/* Header with Progress */}
+      <div className="bg-white/80 backdrop-blur-lg border-b border-border/50 sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Heart className="w-6 h-6 text-love-primary fill-current" />
+              <div>
+                <h1 className="text-xl font-bold">Configuration du profil</h1>
+                <p className="text-sm text-muted-foreground">
+                  Étape {currentStep} sur {totalSteps}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {onExit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleExit}
+                  className="flex items-center gap-2"
+                >
+                  <Home className="w-4 h-4" />
+                  Accueil
+                </Button>
+              )}
+
+              {currentStep > 1 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handlePrevious}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Retour
+                </Button>
+              )}
+            </div>
           </div>
-          <p className="text-muted-foreground">Étape {currentStep} sur {totalSteps}</p>
+
+          <Progress value={progressPercentage} className="h-2" />
+        </div>
+      </div>
+
+      {/* Step Navigation */}
+      <div className="max-w-2xl mx-auto p-4">
+        <div className="flex justify-between mb-8">
+          {STEPS.map((step, index) => {
+            const isActive = step.id === currentStep;
+            const isCompleted = stepValidation[step.id] && step.id < currentStep;
+            const isAccessible = step.id <= currentStep;
+
+            return (
+              <div
+                key={step.id}
+                className={cn(
+                  "flex flex-col items-center text-center flex-1 cursor-pointer transition-all",
+                  isAccessible ? "opacity-100" : "opacity-50 cursor-not-allowed"
+                )}
+                onClick={() => isAccessible && setCurrentStep(step.id)}
+              >
+                <div className={cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all",
+                  isActive && "bg-primary text-white shadow-lg scale-110",
+                  isCompleted && "bg-green-500 text-white",
+                  !isActive && !isCompleted && "bg-muted text-muted-foreground"
+                )}>
+                  {isCompleted ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <step.icon className="w-5 h-5" />
+                  )}
+                </div>
+                <h3 className={cn(
+                  "text-xs font-medium",
+                  isActive && "text-primary",
+                  isCompleted && "text-green-600"
+                )}>
+                  {step.title}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {step.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
-        <Card className="backdrop-blur-sm bg-card/80 border-border/50 mb-6">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Profil complété</span>
-              <span className="text-sm text-muted-foreground">{getCompletionPercentage()}%</span>
+        {/* Step Content */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center",
+                  "bg-gradient-to-br from-primary to-secondary"
+                )}>
+                  <currentStepData.icon className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">{currentStepData.title}</CardTitle>
+                  <p className="text-muted-foreground">{currentStepData.description}</p>
+                </div>
+              </div>
+
+              {/* Auto-save indicator */}
+              <div className="flex items-center gap-2">
+                {isSaving ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Cloud className="w-4 h-4 animate-pulse" />
+                    <span>Sauvegarde...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <Cloud className="w-4 h-4" />
+                    <span>Sauvegardé</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <Progress value={getCompletionPercentage()} className="h-2" />
-          </CardContent>
-        </Card>
+          </CardHeader>
 
-        <Card className="backdrop-blur-sm bg-card/80 border-border/50">
-          <CardContent className="p-6">
-            {renderStepContent()}
+          <CardContent className="space-y-6">
+            {/* Step 1: Personal Information */}
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">Prénom *</Label>
+                    <Input
+                      id="firstName"
+                      value={profile.first_name}
+                      onChange={(e) => setProfile(prev => ({ ...prev, first_name: e.target.value }))}
+                      placeholder="Votre prénom"
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Nom *</Label>
+                    <Input
+                      id="lastName"
+                      value={profile.last_name}
+                      onChange={(e) => setProfile(prev => ({ ...prev, last_name: e.target.value }))}
+                      placeholder="Votre nom"
+                      className="h-12"
+                    />
+                  </div>
+                </div>
 
-            <Separator className="my-6" />
+                <div className="space-y-2">
+                  <Label htmlFor="location">Localisation *</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="location"
+                      value={profile.location}
+                      onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
+                      placeholder="Ville, Région"
+                      className="h-12 pl-10"
+                    />
+                  </div>
+                </div>
 
-            <div className="flex justify-between">
+                <div className="space-y-2">
+                  <Label htmlFor="profession">Profession *</Label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="profession"
+                      value={profile.profession}
+                      onChange={(e) => setProfile(prev => ({ ...prev, profession: e.target.value }))}
+                      placeholder="Votre métier"
+                      className="h-12 pl-10"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Birth Date */}
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <ModernDatePicker
+                  value={profile.date_of_birth}
+                  onChange={handleDateChange}
+                  label="Votre date d'anniversaire"
+                  placeholder="Sélectionnez votre date de naissance"
+                  minAge={18}
+                  maxAge={80}
+                />
+
+                {/* Remove the duplicate age display - ModernDatePicker already shows this */}
+              </div>
+            )}
+
+            {/* Step 3: Photos and Bio */}
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label>Photo de profil *</Label>
+                  <ImageUpload
+                    onImageUpdate={(url) => setProfile(prev => ({
+                      ...prev,
+                      profile_images: url ? [url] : []
+                    }))}
+                    currentImage={profile.profile_images[0]}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Ajoutez une photo qui vous représente bien. Cette photo sera votre photo principale.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Présentez-vous *</Label>
+                  <Textarea
+                    id="bio"
+                    value={profile.bio}
+                    onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
+                    placeholder="Parlez-nous de vous, de vos passions, de ce que vous recherchez..."
+                    className="min-h-32 resize-none"
+                    maxLength={500}
+                  />
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Minimum 20 caractères</span>
+                    <span>{profile.bio.length}/500</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Interests */}
+            {currentStep === 4 && (
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-base font-medium">
+                      Sélectionnez vos centres d'intérêt * (minimum 3)
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Choisissez ce qui vous passionne pour trouver des personnes compatibles
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {interests && Array.isArray(interests) ? interests.map((interest) => {
+                      console.log('🎯 [INTERESTS] Rendering interest:', interest);
+                      const userInterests = profile.interests || [];
+                      const isSelected = userInterests.includes(interest.value);
+
+                      return (
+                        <Badge
+                          key={interest.value}
+                          variant={isSelected ? "default" : "outline"}
+                          className={cn(
+                            "cursor-pointer transition-all hover:scale-105",
+                            isSelected && "bg-primary text-white"
+                          )}
+                          onClick={() => handleInterestToggle(interest.value)}
+                        >
+                          {interest.label}
+                        </Badge>
+                      );
+                    }) : (
+                      <p className="text-red-500">Erreur: interests non défini</p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium">
+                      {profile.interests.length} intérêt{profile.interests.length > 1 ? 's' : ''} sélectionné{profile.interests.length > 1 ? 's' : ''}
+                    </span>
+                    {profile.interests.length >= 3 && (
+                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        ✓ Validé
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-6 border-t">
               <Button
                 variant="outline"
-                onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+                onClick={handlePrevious}
                 disabled={currentStep === 1}
+                className="flex items-center gap-2"
               >
+                <ArrowLeft className="w-4 h-4" />
                 Précédent
               </Button>
 
               {currentStep < totalSteps ? (
                 <Button
-                  onClick={() => setCurrentStep(currentStep + 1)}
-                  disabled={!canProceedToNext()}
-                  className="bg-gradient-primary"
+                  onClick={handleNext}
+                  disabled={!stepValidation[currentStep]}
+                  className="flex items-center gap-2"
                 >
                   Suivant
+                  <ArrowRight className="w-4 h-4" />
                 </Button>
               ) : (
                 <Button
-                  onClick={updateProfile}
-                  disabled={loading || !canProceedToNext()}
-                  className="bg-gradient-primary"
+                  onClick={handleSubmit}
+                  disabled={!stepValidation[4] || loading}
+                  className="flex items-center gap-2 bg-gradient-primary"
                 >
-                  {loading ? "Enregistrement..." : "Terminer"}
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                      Création...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      Créer mon profil
+                    </>
+                  )}
                 </Button>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Debug Panel */}
+      <DebugPanel />
     </div>
   );
 };
+
