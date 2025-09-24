@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Heart, Mail, Lock, User } from 'lucide-react';
+import { ModeToggle } from '@/components/ModeToggle';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -70,16 +71,19 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 right-4">
+        <ModeToggle />
+      </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Heart className="h-8 w-8 text-primary fill-primary" />
             <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              LoveConnect
+              МойDate
             </h1>
           </div>
-          <p className="text-muted-foreground">Find your perfect match</p>
+          <p className="text-muted-foreground">Найди свою идеальную пару</p>
         </div>
 
         <Card className="backdrop-blur-sm bg-card/80 border-border/50">

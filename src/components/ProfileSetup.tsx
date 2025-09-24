@@ -5,20 +5,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useGeolocation } from '@/hooks/useGeolocation';
 import { ImageUpload } from './ImageUpload';
+import { ModeToggle } from '@/components/ModeToggle';
 import { ModernDatePicker, DateInfo } from './ModernDatePicker';
 import { DebugPanel } from './DebugPanel';
-import { interests } from '@/data/profileOptions';
+import { interests, pronounOptions, orientationOptions, personaSymbols } from '@/data/profileOptions';
 import {
   Heart,
   User,
   MapPin,
+  LocateFixed,
   Briefcase,
   Sparkles,
   ArrowLeft,
@@ -30,7 +34,8 @@ import {
   Gift,
   Target,
   Cloud,
-  Home
+  Home,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -46,6 +51,10 @@ interface Profile {
   astrological_sign: string;
   interests: string[];
   profile_images: string[];
+  pronouns: string;
+  custom_pronouns: string;
+  orientation: string;
+  persona_symbols: string[];
 }
 
 type SupabaseProfileRow = {
@@ -61,6 +70,10 @@ type SupabaseProfileRow = {
   astrological_sign: string | null;
   interests: string[] | null;
   profile_images: string[] | null;
+  pronouns: string | null;
+  custom_pronouns: string | null;
+  orientation: string | null;
+  persona_symbols: string[] | null;
 };
 
 type SupabaseProfileUpsert = {
@@ -74,6 +87,10 @@ type SupabaseProfileUpsert = {
   astrological_sign: string | null;
   interests: string[];
   profile_images: string[];
+  pronouns: string | null;
+  custom_pronouns: string | null;
+  orientation: string | null;
+  persona_symbols: string[];
 };
 
 const DATE_STORAGE_FORMAT = 'yyyy-MM-dd';
@@ -181,7 +198,11 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
     profession: '',
     astrological_sign: '',
     interests: [],
-    profile_images: []
+    profile_images: [],
+    pronouns: '',
+    custom_pronouns: '',
+    orientation: '',
+    persona_symbols: []
   });
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -193,9 +214,25 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
   const { toast } = useToast();
   const { user } = useAuth();
 
+  const {
+    location: detectedLocation,
+    requestLocation,
+    loading: geolocationLoading,
+    permission: geolocationPermission
+  } = useGeolocation();
+
+  const [locationManuallyEdited, setLocationManuallyEdited] = useState(false);
+  const [hasRequestedLocation, setHasRequestedLocation] = useState(false);
+
   useEffect(() => {
     const validations = {
-      1: Boolean(profile.first_name && profile.last_name && profile.location && profile.profession),
+      1: Boolean(
+        profile.first_name &&
+        profile.last_name &&
+        profile.location &&
+        profile.profession &&
+        profile.orientation
+      ),
       2: Boolean(profile.date_of_birth && typeof profile.age === 'number' && profile.age >= 18),
       3: Boolean(profile.bio && profile.bio.length >= 20 && profile.profile_images.length > 0),
       4: profile.interests.length >= 3
@@ -232,12 +269,71 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
     profile.last_name,
     profile.location,
     profile.profession,
+    profile.pronouns,
+    profile.orientation,
     profile.date_of_birth,
     profile.age,
     profile.bio,
     profile.profile_images.length,
     profile.interests.length
   ]);
+
+  useEffect(() => {
+    if (
+      currentStep === 1 &&
+      !hasRequestedLocation &&
+      !locationManuallyEdited &&
+      geolocationPermission !== 'denied'
+    ) {
+      setHasRequestedLocation(true);
+      void requestLocation();
+    }
+  }, [
+    currentStep,
+    geolocationPermission,
+    hasRequestedLocation,
+    locationManuallyEdited,
+    requestLocation
+  ]);
+
+  useEffect(() => {
+    if (!detectedLocation) {
+      return;
+    }
+
+    const parts = [
+      detectedLocation.city,
+      detectedLocation.region,
+      detectedLocation.country
+    ].filter(Boolean);
+    const formatted = parts.join(', ').trim();
+
+    if (!formatted) {
+      return;
+    }
+
+    let updated = false;
+    setProfile(prev => {
+      if (locationManuallyEdited && prev.location?.trim()) {
+        return prev;
+      }
+      if (prev.location === formatted) {
+        return prev;
+      }
+      updated = true;
+      return { ...prev, location: formatted };
+    });
+
+    if (updated) {
+      setLocationManuallyEdited(false);
+    }
+  }, [detectedLocation, locationManuallyEdited]);
+
+  const handleUseCurrentLocation = useCallback(async () => {
+    setLocationManuallyEdited(false);
+    setHasRequestedLocation(true);
+    await requestLocation();
+  }, [requestLocation]);
 
   const fetchProfile = useCallback(async () => {
     if (!user) {
@@ -270,13 +366,23 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
           profession: data.profession ?? '',
           astrological_sign: data.astrological_sign ?? '',
           interests: data.interests ?? [],
-          profile_images: data.profile_images ?? []
+          profile_images: data.profile_images ?? [],
+          pronouns: data.pronouns ?? '',
+          custom_pronouns: data.custom_pronouns ?? '',
+          orientation: data.orientation ?? '',
+          persona_symbols: Array.isArray(data.persona_symbols) ? data.persona_symbols : []
         });
+
+        const hasLocation = Boolean(data.location && data.location.trim().length > 0);
+        setLocationManuallyEdited(hasLocation);
+        setHasRequestedLocation(hasLocation);
 
         logDebug(`Images: ${(data.profile_images ?? []).length}`);
       } else {
         console.log('No existing profile found');
         logDebug('Aucun profil existant');
+        setLocationManuallyEdited(false);
+        setHasRequestedLocation(false);
       }
     } catch (error) {
       const description = getErrorMessage(error);
@@ -332,6 +438,15 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
       interests: prev.interests.includes(interest)
         ? prev.interests.filter(i => i !== interest)
         : [...prev.interests, interest]
+    }));
+  };
+
+  const handleSymbolToggle = (symbol: string) => {
+    setProfile(prev => ({
+      ...prev,
+      persona_symbols: prev.persona_symbols.includes(symbol)
+        ? prev.persona_symbols.filter(s => s !== symbol)
+        : [...prev.persona_symbols, symbol]
     }));
   };
 
@@ -403,7 +518,14 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
         profession: profile.profession || null,
         astrological_sign: profile.astrological_sign || null,
         interests: profile.interests,
-        profile_images: profile.profile_images
+        profile_images: profile.profile_images,
+        pronouns: profile.pronouns || null,
+        custom_pronouns:
+          profile.pronouns === 'custom' && profile.custom_pronouns
+            ? profile.custom_pronouns
+            : null,
+        orientation: profile.orientation || null,
+        persona_symbols: profile.persona_symbols
       };
 
       const { data, error } = await supabase
@@ -463,7 +585,14 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
         profession: profileData.profession || null,
         astrological_sign: profileData.astrological_sign || null,
         interests: profileData.interests,
-        profile_images: profileData.profile_images
+        profile_images: profileData.profile_images,
+        pronouns: profileData.pronouns || null,
+        custom_pronouns:
+          profileData.pronouns === 'custom' && profileData.custom_pronouns
+            ? profileData.custom_pronouns
+            : null,
+        orientation: profileData.orientation || null,
+        persona_symbols: profileData.persona_symbols || []
       };
 
       console.log('Auto-saving profile data:', dataToSave);
@@ -541,9 +670,9 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
   const progressPercentage = (currentStep / totalSteps) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background transition-colors">
       {/* Header with Progress */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-border/50 sticky top-0 z-10">
+      <div className="bg-card/80 dark:bg-background/90 backdrop-blur-lg border-b border-border/50 sticky top-0 z-10 transition-colors">
         <div className="max-w-2xl mx-auto p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -557,6 +686,7 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
             </div>
 
             <div className="flex items-center gap-2">
+              <ModeToggle />
               {onExit && (
                 <Button
                   variant="ghost"
@@ -668,58 +798,321 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
           <CardContent className="space-y-6">
             {/* Step 1: Personal Information */}
             {currentStep === 1 && (
+
               <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                   <div className="space-y-2">
+
                     <Label htmlFor="firstName">Prénom *</Label>
+
                     <Input
+
                       id="firstName"
+
                       value={profile.first_name}
+
                       onChange={(e) => setProfile(prev => ({ ...prev, first_name: e.target.value }))}
+
                       placeholder="Votre prénom"
+
                       className="h-12"
+
                     />
+
                   </div>
+
                   <div className="space-y-2">
+
                     <Label htmlFor="lastName">Nom *</Label>
+
                     <Input
+
                       id="lastName"
+
                       value={profile.last_name}
+
                       onChange={(e) => setProfile(prev => ({ ...prev, last_name: e.target.value }))}
+
                       placeholder="Votre nom"
+
                       className="h-12"
+
                     />
+
                   </div>
+
+                  {geolocationPermission === 'denied' && (
+                    <p className="text-xs text-destructive mt-1">
+                      Activez la localisation dans votre navigateur pour remplir automatiquement ce champ.
+                    </p>
+                  )}
+
                 </div>
 
+
+
                 <div className="space-y-2">
+
                   <Label htmlFor="location">Localisation *</Label>
+
                   <div className="relative">
+
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+
                     <Input
+
                       id="location"
+
                       value={profile.location}
-                      onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
+
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setLocationManuallyEdited(true);
+                        setProfile(prev => ({ ...prev, location: value }));
+                      }}
+
                       placeholder="Ville, Région"
+
                       className="h-12 pl-10"
+
                     />
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleUseCurrentLocation}
+                      disabled={geolocationLoading}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label="Utiliser ma position actuelle"
+                    >
+                      {geolocationLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <LocateFixed className="w-4 h-4" />
+                      )}
+                    </Button>
+
                   </div>
+
                 </div>
 
+
+
                 <div className="space-y-2">
+
                   <Label htmlFor="profession">Profession *</Label>
+
                   <div className="relative">
+
                     <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+
                     <Input
+
                       id="profession"
+
                       value={profile.profession}
+
                       onChange={(e) => setProfile(prev => ({ ...prev, profession: e.target.value }))}
+
                       placeholder="Votre métier"
+
                       className="h-12 pl-10"
+
                     />
+
                   </div>
+
                 </div>
+
+
+
+                <div className="space-y-2">
+
+                  <Label>Pronoms</Label>
+
+                  <Select
+
+                    value={profile.pronouns || undefined}
+
+                    onValueChange={(value) =>
+
+                      setProfile(prev => ({
+
+                        ...prev,
+
+                        pronouns: value,
+
+                        custom_pronouns: value === 'custom' ? prev.custom_pronouns : ''
+
+                      }))
+
+                    }
+
+                  >
+
+                    <SelectTrigger className="h-12">
+
+                      <SelectValue placeholder="Choisissez vos pronoms" />
+
+                    </SelectTrigger>
+
+                    <SelectContent>
+
+                      {pronounOptions.map(option => (
+
+                        <SelectItem key={option.value} value={option.value}>
+
+                          {option.label}
+
+                        </SelectItem>
+
+                      ))}
+
+                    </SelectContent>
+
+                  </Select>
+
+                  <p className="text-xs text-muted-foreground">
+
+                    Cette information sera visible sur votre profil et dans vos conversations.
+
+                  </p>
+
+                </div>
+
+
+
+                {profile.pronouns === 'custom' && (
+
+                  <div className="space-y-2">
+
+                    <Label htmlFor="customPronouns">Pronoms personnalisés</Label>
+
+                    <Input
+
+                      id="customPronouns"
+
+                      value={profile.custom_pronouns}
+
+                      onChange={(e) => setProfile(prev => ({ ...prev, custom_pronouns: e.target.value }))}
+
+                      placeholder="Ex : elle/iel"
+
+                      className="h-12"
+
+                    />
+
+                    <p className="text-xs text-muted-foreground">
+
+                      Une courte formulation (30 caractères max).
+
+                    </p>
+
+                  </div>
+
+                )}
+
+
+
+                <div className="space-y-3">
+
+                  <Label>Orientation *</Label>
+
+                  <p className="text-xs text-muted-foreground">
+
+                    Vos préférences restent confidentielles et optimisent vos suggestions.
+
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+
+                    {orientationOptions.map(option => {
+
+                      const isSelected = profile.orientation === option.value;
+
+                      return (
+
+                        <Button
+
+                          key={option.value}
+
+                          type="button"
+
+                          variant={isSelected ? 'default' : 'outline'}
+
+                          onClick={() => setProfile(prev => ({ ...prev, orientation: option.value }))}
+
+                          className="px-4"
+
+                        >
+
+                          {option.label}
+
+                        </Button>
+
+                      );
+
+                    })}
+
+                  </div>
+
+                </div>
+
+
+
+                <div className="space-y-3">
+
+                  <Label>Symboles de personnalité</Label>
+
+                  <p className="text-xs text-muted-foreground">
+
+                    Ces symboles sont visibles uniquement des profils compatibles et reflètent vos valeurs.
+
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+
+                    {personaSymbols.map(symbol => {
+
+                      const isSelected = profile.persona_symbols.includes(symbol.value);
+
+                      return (
+
+                        <Button
+
+                          key={symbol.value}
+
+                          type="button"
+
+                          variant={isSelected ? 'default' : 'outline'}
+
+                          onClick={() => handleSymbolToggle(symbol.value)}
+
+                          className="flex items-center gap-2"
+
+                          title={symbol.description}
+
+                        >
+
+                          <span className="text-lg" role="img" aria-hidden="true">{symbol.emoji}</span>
+
+                          <span>{symbol.label}</span>
+
+                        </Button>
+
+                      );
+
+                    })}
+
+                  </div>
+
+                </div>
+
               </div>
+
             )}
 
             {/* Step 2: Birth Date */}
@@ -820,6 +1213,31 @@ export const ProfileSetup = ({ onProfileComplete, onExit }: ProfileSetupProps) =
                         ✓ Validé
                       </Badge>
                     )}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">Vos symboles de personnalité</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Ces symboles restent privés et servent uniquement à améliorer vos compatibilités.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {personaSymbols.map(symbol => {
+                      const isSelected = profile.persona_symbols.includes(symbol.value);
+                      return (
+                        <Badge
+                          key={symbol.value}
+                          variant={isSelected ? 'default' : 'outline'}
+                          className={cn(
+                            'flex items-center gap-1 px-3 py-1 text-sm',
+                            isSelected && 'bg-primary text-white'
+                          )}
+                        >
+                          <span role="img" aria-hidden="true">{symbol.emoji}</span>
+                          <span>{symbol.label}</span>
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

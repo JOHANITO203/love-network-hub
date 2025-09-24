@@ -124,5 +124,60 @@
 2. Planifier Phase 0 ateliers + audit Supabase (1 sprint).
 3. Préparer backlog détaillé (Jira/Linear) aligné sur roadmap.
 4. Configurer pipeline Supabase CLI & GitHub Actions.
-5. Démarrer internationalisation et refactor typage (stories techniques). 
+5. Démarrer internationalisation et refactor typage (stories techniques).
 
+## 8. Mise à jour récente (septembre 2025)
+- Consolidation de la gestion d'erreurs côté frontend avec `getErrorMessage` et uniformisation des toasts d'upload/suppression d'images.
+- Renforcement du typage TypeScript : profils Supabase, notifications (métadonnées structurées), photos de profil, hooks d'authentification et suppression des derniers `any` dans les hooks critiques.
+- Durcissement de la fonction edge `realtime-chat` (vérification JWT typée, sanitation stricte des payloads).
+- Modernisation des configurations (import ESM de `tailwindcss-animate`, composants UI sans interfaces vides) pour préparer la modularisation.
+- `npm run lint` propre (hors avertissements existants de Fast Refresh/dépendances à ajuster manuellement).
+
+## 9. Prochaines étapes priorité court terme
+1. Clore les avertissements restants du lint (dépendances manquantes, Fast Refresh) ou documenter les exceptions.
+2. Étendre `getErrorMessage` aux autres appels Supabase (matching, notifications, géolocalisation) pour harmoniser les retours utilisateurs.
+3. Finaliser la documentation des nouveaux modules (ProfileSetup, notifications, photos) dans le wiki interne / README technique.
+4. Déployer les migrations Supabase associées aux nouvelles tables (*.sql déjà générés) et valider via environnement de staging.
+5. Préparer les scripts d'automatisation (CI/CD) pour lint + tests + synchronisation Supabase avant la Phase 2.
+
+## 10. Modularisation & infrastructures réutilisables (plan)
+- **Front-end** :
+  - Structurer le code en modules dominés (ex. `modules/profile`, `modules/matching`, `modules/notifications`) avec exports explicites et composants/UI partagés dans `packages/ui`.
+  - Introduire un gestionnaire de paquets interne (Turborepo / Nx) pour séparer web, mobile, design system.
+  - Centraliser les hooks de données via React Query + services (`services/supabase/<domaine>.ts`) pour découpler l'accès API.
+- **Back-end Supabase / services** :
+  - Isoler les fonctions edge/microservices par domaine (`auth`, `chat`, `matching`) et mutualiser les utilitaires (validation, logging) dans un paquet partagé.
+  - Standardiser les migrations via un répertoire `supabase/migrations/<domaine>` et des scripts de déploiement orchestrés (Supabase CLI + GitHub Actions).
+  - Ajouter une couche d'API contractuelle (OpenAPI/GraphQL) pour rendre chaque service substituable.
+- **Infrastructure** :
+  - Mettre en place des environnements indépendants (dev/staging/prod) avec variables Supabase/Twilio/YooKassa gérées par Vault/1Password et workflows GitHub distincts.
+  - Prévoir un bus d'événements léger (Supabase Realtime / Kafka managé) pour synchroniser matching, notifications, analytics sans couplage direct.
+  - Mettre en œuvre des librairies transverses (observabilité, gestion erreurs, i18n) publiées en paquets npm internes afin de garantir la réutilisation multi-projets.
+- **Gouvernance & release** :
+  - Définir un calendrier de release modulaire (toutes les 2 semaines) avec validation par module et indicateurs (SLI/SLO).
+  - Documenter les contrats inter-modules et instaurer des tests de contrat (Pact) pour éviter les régressions croisées.
+
+## 11. Recap travaux realises (septembre 2025)
+- Profil onboarding multi-etapes stabilise avec pronoms, orientation, symboles discrets et auto-save alimente par Supabase.
+- Centre de notifications pret: tables/types SQL, hook React, ecran UI et toasts homogenes pour erreurs/chargements.
+- Fonction edge realtime-chat durcie avec authentification JWT verifiee, sanitation stricte et gestion pipeline cote front.
+- Algorithme de matching actif (scoring preferences, boosters, toasts coherents) synchronise avec les preferences utilisateur.
+- Internationalisation installee (`react-intl`), design system ShadCN aligne et dependances reequilibrees (`date-fns` v3).
+- Geolocalisation automatique integree a l'edition de profil (auto-detection, bouton "Utiliser ma position", saisie manuelle securisee).
+- Messagerie convertie en chat texte Supabase (`chat_messages`) avec traduction automatique via l'edge function `translate-text`.
+- Social feed enrichi de commentaires persistes (hook `useSocialComments`, table `social_post_comments`) avec formulaire inline.
+- Mode clair/sombre global ajoute via ThemeProvider (next-themes) et toggle acces rapide dans l'interface.
+
+## 12. Actions prioritaires a court terme
+1. Deployer les migrations Supabase en attente (notifications, geoloc, `social_post_comments`) puis valider en staging.
+2. Publier les fonctions edge (`translate-text`, `realtime-chat`) via Supabase CLI avec configuration OPENAI et cle service actualisee.
+3. Documenter les nouveaux flux (geolocalisation, chat texte traduit, commentaires sociaux) et les scenarios d'erreur associes.
+4. Ajouter des tests d'integration couvrant chat texte + traduction, geolocalisation et feed social (React + Supabase).
+5. Finaliser l'automatisation CI (lint, tests, db diff/push, deploy functions) avant ouverture aux QA.
+
+## 13. Modularisation incrementale et infrastructures reutilisables
+
+- Frontend: regrouper les ecrans et hooks par domaine (modules/profile, modules/chat, modules/notifications), exposer un package ui et isoler les services Supabase (services/<domaine>.ts).
+- Backend Supabase: classer les migrations par domaine, factoriser les validations dans un dossier partage supabase/lib, definir des RPC par service (matching, feed, chat) et fournir un schema OpenAPI.
+- CI/CD: etablir workflows distincts pour lint/tests front, migrations Supabase (db diff/push), deploy edge functions et secrets geres via GitHub Environments.
+- Observabilite: mutualiser les utilitaires de logging/monitoring (Sentry, traces) et publier un paquet interne @moydate/observability partage entre front et fonctions edge.

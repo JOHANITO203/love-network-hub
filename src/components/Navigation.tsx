@@ -20,7 +20,7 @@ export const Navigation = ({ activeSection, onSectionChange }: NavigationProps) 
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-border/50 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card/80 dark:bg-background/85 backdrop-blur-lg border-t border-border/50 z-50 transition-colors">
       <div className="flex items-center justify-around px-4 py-2 max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;

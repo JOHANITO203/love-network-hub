@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ProfileCard } from "./ProfileCard";
 import { SocialFeed } from "./SocialFeed";
 import { Navigation } from "./Navigation";
@@ -8,15 +8,19 @@ import { DebugPanel } from "./DebugPanel";
 import { MatchingProfileCard } from "./MatchingProfileCard";
 import { MatchingPreferences } from "./MatchingPreferences";
 import { NotificationCenter } from "./NotificationCenter";
+import { ModeToggle } from "@/components/ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Heart, MessageCircle, Sparkles, Users, Crown, LogOut, Settings, RefreshCw } from "lucide-react";
 import { mockProfiles, mockDatePosts, mockMatches, type MatchSummary } from "@/data/mockData";
+
+import { orientationOptions, pronounOptions } from "@/data/profileOptions";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useMatching } from "@/hooks/useMatching";
+import { useSocialComments } from "@/hooks/useSocialComments";
 import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-love.jpg";
 
@@ -27,10 +31,19 @@ interface UserProfile {
   first_name: string | null;
   last_name: string | null;
   profile_images: string[] | null;
+  pronouns: string | null;
+  custom_pronouns: string | null;
+  orientation: string | null;
+  persona_symbols: string[] | null;
 }
 
 interface SupabaseProfileRow extends UserProfile {
-  profile_images: string[] | null;
+  user_id: string;
+  bio: string | null;
+  location: string | null;
+  profession: string | null;
+  astrological_sign: string | null;
+  interests: string[] | null;
 }
 
 const getErrorMessage = (error: unknown): string => {
@@ -44,6 +57,8 @@ export const DatingApp = () => {
   const [activeSection, setActiveSection] = useState<NavSection>("discover");
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [socialPosts, setSocialPosts] = useState(mockDatePosts);
+  const postIds = useMemo(() => socialPosts.map((post) => post.id), [socialPosts]);
+  const { commentsByPost, loading: commentsLoading, addComment } = useSocialComments(postIds);
   const [selectedMatch, setSelectedMatch] = useState<MatchSummary | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileSetupComplete, setProfileSetupComplete] = useState(false);
@@ -106,7 +121,7 @@ export const DatingApp = () => {
     }
   }, [user, checkProfileSetup]);
 
-  const handleProfileComplete = (profile: UserProfile & { profile_images: string[] | null }) => {
+  const handleProfileComplete = (profile: UserProfile) => {
     // Debug forcé dans console
     console.log('🚀 [FINALISATION] Profile completed:', profile);
     console.log('🚀 [FINALISATION] Profile type:', typeof profile);
@@ -195,12 +210,21 @@ export const DatingApp = () => {
     );
   };
 
-  const handleSocialComment = (postId: string) => {
-    toast({
-      title: "Comment feature coming soon!",
-      description: "We're working on making conversations even better.",
-    });
-  };
+  const handleSubmitComment = useCallback(async (postId: string, comment: string) => {
+    if (!user) {
+      toast({
+        title: "Connexion requise",
+        description: "Connectez-vous pour commenter une date story.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const authorName = [userProfile?.first_name ?? "", userProfile?.last_name ?? ""].join(" ").trim() || user.email || "Moi";
+    const authorAvatar = userProfile?.profile_images?.[0] ?? null;
+
+    await addComment(postId, comment, user.id, authorName, authorAvatar);
+  }, [addComment, toast, user, userProfile]);
 
   const handleSocialShare = (postId: string) => {
     toast({
@@ -409,8 +433,10 @@ export const DatingApp = () => {
           <div className="pb-20 pt-4">
             <SocialFeed
               posts={socialPosts}
+              commentsByPost={commentsByPost}
+              commentsLoading={commentsLoading}
               onLike={handleSocialLike}
-              onComment={handleSocialComment}
+              onSubmitComment={handleSubmitComment}
               onShare={handleSocialShare}
             />
           </div>
@@ -451,17 +477,19 @@ export const DatingApp = () => {
   if (selectedMatch) {
     return (
       <ChatInterface
+        matchId={selectedMatch.id}
         matchName={selectedMatch.name}
         matchAvatar={selectedMatch.avatar}
+        matchLanguages={selectedMatch.languages}
         onBack={() => setSelectedMatch(null)}
       />
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background transition-colors">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-lg border-b border-border/50 p-4">
+      <header className="bg-card/80 dark:bg-background/90 backdrop-blur-lg border-b border-border/50 p-4 transition-colors">
         <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="flex items-center gap-2">
             <Heart className="w-6 h-6 text-love-primary fill-current" />
@@ -470,6 +498,7 @@ export const DatingApp = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            <ModeToggle />
             <NotificationCenter />
             <Button
               variant="ghost"
