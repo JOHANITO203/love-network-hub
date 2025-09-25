@@ -1,7 +1,7 @@
 name: Relationship Scheduler
 on:
   schedule:
-    - cron: '*/15 * * * *'   # toutes les 15 minutes
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
