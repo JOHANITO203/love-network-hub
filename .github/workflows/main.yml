@@ -1,0 +1,17 @@
+name: Relationship Scheduler
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # toutes les 15 minutes
+  workflow_dispatch:
+
+jobs:
+  call_scheduler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Supabase function
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_TOKEN }}" \
+            https://juzpcvhmiaxswiibicol.functions.supabase.co/relationship-scheduler \
+            -d '{}'
