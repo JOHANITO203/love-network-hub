@@ -28,9 +28,9 @@ export const DiscoverActions = ({ onPass, onLike, onSuperlike, disabled }: Disco
           type="button"
           disabled={disabled}
           onClick={onLike}
-          className="flex h-20 w-20 items-center justify-center rounded-full border-0 bg-[#E94057] text-white shadow-[0_25px_45px_rgba(233,64,87,0.4)]"
+          className="flex h-20 w-20 items-center justify-center rounded-full border-0 bg-gradient-to-br from-[#E94057] to-[#8A2387] text-white shadow-[0_20px_50px_rgba(233,64,87,0.4)]"
         >
-          <Heart className="h-8 w-8" />
+          <Heart className="h-8 w-8 fill-current" />
         </Button>
       </motion.div>
 
@@ -39,9 +39,9 @@ export const DiscoverActions = ({ onPass, onLike, onSuperlike, disabled }: Disco
           type="button"
           disabled={disabled}
           onClick={onSuperlike}
-          className="flex h-16 w-16 items-center justify-center rounded-full border-0 bg-white text-[#8A2387] shadow-[0_18px_40px_rgba(138,35,135,0.25)]"
+          className="flex h-16 w-16 items-center justify-center rounded-full border-0 bg-white text-[#4CAF50] shadow-[0_18px_40px_rgba(76,175,80,0.25)]"
         >
-          <Star className="h-7 w-7" />
+          <Star className="h-7 w-7 fill-current" />
         </Button>
       </motion.div>
     </div>

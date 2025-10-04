@@ -17,14 +17,11 @@ export const DiscoverHeader = ({ onBack, onFilter, locationLabel = "Chicago, IL"
         onClick={onBack}
         className="h-14 w-14 rounded-[20px] border-[#EEEFF5] bg-white text-[#E94057] shadow-[0_10px_24px_rgba(233,64,87,0.08)]"
       >
-        <ArrowLeft className="h-5 w-5" />
+        <ArrowLeft className="h-6 w-6" />
       </Button>
-
       <div className="text-center">
-        <p className="text-2xl font-semibold text-[#1F1F33]">Discover</p>
-        <p className="text-sm text-[#8C8D9E]">{locationLabel}</p>
+        <h2 className="text-[24px] font-semibold text-[#1E232C]">{locationLabel}</h2>
       </div>
-
       <Button
         type="button"
         variant="outline"
@@ -32,7 +29,7 @@ export const DiscoverHeader = ({ onBack, onFilter, locationLabel = "Chicago, IL"
         onClick={onFilter}
         className="h-14 w-14 rounded-[20px] border-[#EEEFF5] bg-white text-[#E94057] shadow-[0_10px_24px_rgba(233,64,87,0.08)]"
       >
-        <SlidersHorizontal className="h-5 w-5" />
+        <SlidersHorizontal className="h-6 w-6" />
       </Button>
     </div>
   );
