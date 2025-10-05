@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Auth Service
+  auth:
+    build: ./services/auth
+    ports: ["3001:3001"]
+    environment:
+      DATABASE_URL: postgresql://moydate:secret@postgres:5432/moydate_auth
+      REDIS_URL: redis://redis:6379
+    depends_on: [postgres, redis]
+
+  # Profile Service
+  profile:
+    build: ./services/profile
+    ports: ["3002:3002"]
+    environment:
+      DATABASE_URL: postgresql://moydate:secret@postgres:5432/moydate_profile
+      REDIS_URL: redis://redis:6379
+    depends_on: [postgres, redis]
+
+  # Matching Service
+  matching:
+    build: ./services/matching
+    ports: ["3003:3003"]
+    environment:
+      DATABASE_URL: postgresql://moydate:secret@postgres:5432/moydate_matching
+      REDIS_URL: redis://redis:6379
+    depends_on: [postgres, redis]
+
+  # Chat Service
+  chat:
+    build: ./services/chat
+    ports: ["3004:3004"]
+    environment:
+      DATABASE_URL: postgresql://moydate:secret@postgres:5432/moydate_chat
+      REDIS_URL: redis://redis:6379
+    depends_on: [postgres, redis]
+
+  # Narrative Service
+  narrative:
+    build: ./services/narrative
+    ports: ["3005:3005"]
+    environment:
+      DATABASE_URL: postgresql://moydate:secret@postgres:5432/moydate_narrative
+      REDIS_URL: redis://redis:6379
+    depends_on: [postgres, redis]
+
+  # Premium Service
+  premium:
+    build: ./services/premium
+    ports: ["3006:3006"]
+    environment:
+      DATABASE_URL: postgresql://moydate:secret@postgres:5432/moydate_premium
+    depends_on: [postgres]
+
+  # PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: moydate
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: moydate
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    volumes:
+      - redis-data:/data
+
+volumes:
+  postgres-data:
+  redis-data:

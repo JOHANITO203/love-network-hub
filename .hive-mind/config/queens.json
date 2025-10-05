@@ -1,0 +1,9 @@
+{
+  "queens": [],
+  "activeQueen": null,
+  "config": {
+    "coordinationStyle": "centralized-decentralized-hybrid",
+    "decisionMaking": "strategic",
+    "resourceAllocation": "dynamic"
+  }
+}

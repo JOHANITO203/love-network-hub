@@ -1,0 +1,11 @@
+{
+  "workers": [],
+  "specializations": [
+    "researcher",
+    "coder",
+    "tester",
+    "reviewer",
+    "architect"
+  ],
+  "maxWorkers": 10
+}
