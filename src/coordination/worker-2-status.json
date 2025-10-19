@@ -1,0 +1,67 @@
+{
+  "agent_id": "worker-2",
+  "agent_type": "worker-specialist",
+  "deployment_status": "ready",
+  "hive_mind_integration": {
+    "collective_intelligence_connected": true,
+    "memory_synchronization_enabled": true,
+    "consensus_voting_enabled": true,
+    "knowledge_integration_enabled": true
+  },
+  "capabilities": [
+    "code-implementation",
+    "analysis",
+    "testing",
+    "debugging",
+    "optimization"
+  ],
+  "expertise": [
+    "javascript",
+    "nodejs",
+    "testing",
+    "coordination"
+  ],
+  "coordination_protocol": {
+    "pre_task_hook": "report status before work",
+    "during_task_hook": "update progress every significant step",
+    "post_task_hook": "deliver results and metrics",
+    "memory_sync": "every 30 seconds via collective intelligence",
+    "consensus_participation": "weighted voting based on expertise"
+  },
+  "memory_keys": {
+    "status": "hive-mind/workers/worker-2/status",
+    "progress": "hive-mind/workers/worker-2/progress",
+    "tasks": "hive-mind/workers/worker-2/tasks",
+    "knowledge": "hive-mind/workers/worker-2/knowledge",
+    "decisions": "hive-mind/workers/worker-2/decisions"
+  },
+  "performance_metrics": {
+    "tasks_completed": 0,
+    "current_load": 0,
+    "average_task_time_ms": 0,
+    "success_rate": 1.0,
+    "resource_efficiency": 0.85
+  },
+  "initialization": {
+    "timestamp": "2025-10-06T00:50:47.598Z",
+    "initialized_by": "hive-mind-coordinator",
+    "test_script": "tests/worker-agent-2.test.js",
+    "ready_for_assignment": true
+  },
+  "communication_channels": {
+    "reports_to": "queen-coordinator",
+    "collaborates_with": [
+      "worker-1",
+      "worker-3",
+      "worker-4",
+      "worker-5"
+    ],
+    "coordinates_via": "collective-intelligence",
+    "memory_manager": "swarm-memory-manager"
+  },
+  "work_patterns": {
+    "primary": "sequential-execution",
+    "collaboration": "parallel-with-sync",
+    "emergency": "prioritized-execution"
+  }
+}

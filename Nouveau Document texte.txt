@@ -1,0 +1,83 @@
+$env:SUPABASE_ACCESS_TOKEN = 'sbp_dcf1c39b3b0ce026a6e2f097351dd312b7446d6a'
+$env:SUPABASE_URL = 'https://juzpcvhmiaxswiibicol.supabase.co'
+$env:SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enBjdmhtaWF4c3dpaWJpY29sIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODMyODk1OCwiZXhwIjoyMDczOTA0OTU4fQ.Yi2MU0qn-jWrj39ZFiCq6mVwIxbq5aPKRGOlVdHibrg'
+$env:SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enBjdmhtaWF4c3dpaWJpY29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMjg5NTgsImV4cCI6MjA3MzkwNDk1OH0.Osq-Wn5YE1nVZbRv87skH_ghkTKW_nRcjBqsA24OvQs'
+
+
+
+
+
+$env:SUPABASE_ACCESS_TOKEN = 'sbp_dcf1c39b3b0ce026a6e2f097351dd312b7446d6a'
+npx supabase@latest login
+
+
+supabase secrets set SCHEDULER_SERVICE_ROLE_KEY=<'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enBjdmhtaWF4c3dpaWJpY29sIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODMyODk1OCwiZXhwIjoyMDczOTA0OTU4fQ.Yi2MU0qn-jWrj39ZFiCq6mVwIxbq5aPKRGOlVdHibrg'>
+
+
+supabase functions schedule create relationship-scheduler --cron "*/15 * * * *" --project-ref juzpcvhmiaxswiibicol
+
+
+select net.http_post(
+  url := 'https://juzpcvhmiaxswiibicol.functions.supabase.co/relationship-scheduler',
+  headers := jsonb_build_object(
+    'Content-Type','application/json',
+    'Authorization','Bearer <eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enBjdmhtaWF4c3dpaWJpY29sIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODMyODk1OCwiZXhwIjoyMDczOTA0OTU4fQ.Yi2MU0qn-jWrj39ZFiCq6mVwIxbq5aPKRGOlVdHibrg>'
+  ),
+  body := '{}'::jsonb
+);
+
+
+https://juzpcvhmiaxswiibicol.functions.supabase.co/relationship-scheduler
+
+
+
+
+
+
+$headers = @{
+  "Content-Type" = "application/json"
+  "Authorization" = "Bearer <eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enBjdmhtaWF4c3dpaWJpY29sIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODMyODk1OCwiZXhwIjoyMDczOTA0OTU4fQ.Yi2MU0qn-jWrj39ZFiCq6mVwIxbq5aPKRGOlVdHibrg>"
+}
+Invoke-RestMethod `
+  -Uri "https://juzpcvhmiaxswiibicol.functions.supabase.co/relationship-scheduler" `
+  -Method Post `
+  -Headers $headers `
+  -Body "{}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$headers = @{
+  "Content-Type" = "application/json"
+  "Authorization" = "Bearer <eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1enBjdmhtaWF4c3dpaWJpY29sIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODMyODk1OCwiZXhwIjoyMDczOTA0OTU4fQ.Yi2MU0qn-jWrj39ZFiCq6mVwIxbq5aPKRGOlVdHibrg>"
+}
+Invoke-RestMethod `
+  -Uri "https://juzpcvhmiaxswiibicol.functions.supabase.co/relationship-scheduler" `
+  -Method Post `
+  -Headers $headers `
+  -Body "{}"
+

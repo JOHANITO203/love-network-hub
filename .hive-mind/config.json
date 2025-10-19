@@ -1,0 +1,12 @@
+{
+  "topology": "hierarchical",
+  "maxAgents": 10,
+  "strategy": "balanced",
+  "enableMemory": true,
+  "enableNeural": true,
+  "sessionTracking": true,
+  "autoSave": true,
+  "autoSaveInterval": 30000,
+  "created": "2025-10-04T20:15:00.000Z",
+  "version": "2.0.0"
+}

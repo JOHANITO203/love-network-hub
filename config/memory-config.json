@@ -1,0 +1,32 @@
+{
+  "memory": {
+    "l1MaxSize": 100,
+    "l2MaxSize": 500,
+    "l3MaxSize": 2000,
+    "syncInterval": 30000,
+    "metricsInterval": 60000,
+    "replicationFactor": 3,
+    "prefetchEnabled": true,
+    "writeAheadLog": true
+  },
+  "hiveMind": {
+    "swarmId": "love-network-hub-hive",
+    "topology": "mesh",
+    "maxAgents": 50,
+    "coordinationProtocol": "CRDT",
+    "consensusMechanism": "vector-clock"
+  },
+  "persistence": {
+    "storagePath": ".hive-memory",
+    "walPath": ".hive-memory/wal",
+    "snapshotInterval": 300000,
+    "backupEnabled": true,
+    "backupPath": ".hive-memory/backups"
+  },
+  "performance": {
+    "enablePrefetch": true,
+    "enableCompression": false,
+    "maxMemoryMb": 512,
+    "gcInterval": 600000
+  }
+}

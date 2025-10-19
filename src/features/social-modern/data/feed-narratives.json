@@ -1,0 +1,434 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-03",
+  "description": "МойDate Algorithm Narratives - Sarcastiques, Drôles, Romantiques et Sagesses",
+
+  "categories": {
+    "sarcastic": {
+      "name": "Sarcastique",
+      "icon": "🎭",
+      "gradient": { "from": "#667eea", "to": "#764ba2" },
+      "templates": [
+        {
+          "id": "sar_001",
+          "template": "🔥 {username}, {age} ans, {sign} a déjà swipé {like_count} fois cette semaine. Quelqu'un veut bien lui éviter la tendinite ? 😅",
+          "variables": ["username", "age", "sign", "like_count"]
+        },
+        {
+          "id": "sar_002",
+          "template": "👀 {username} ne like QUE les {target_age} ans de {target_origin}… obsession ou destin ? 😏",
+          "variables": ["username", "target_age", "target_origin"]
+        },
+        {
+          "id": "sar_003",
+          "template": "Bred, 25 ans… il swipe à gauche plus vite qu'un banquier devant une facture 🤣",
+          "variables": []
+        },
+        {
+          "id": "sar_004",
+          "template": "{username}, 28 ans, 12 matchs… mais 0 message. Swipe pour lui apprendre à dire 'Salut' 👋😂",
+          "variables": ["username"]
+        },
+        {
+          "id": "sar_005",
+          "template": "{username}, 27 ans, ouvre les messages mais ne répond pas. Un ghoster professionnel 👻",
+          "variables": ["username"]
+        },
+        {
+          "id": "sar_006",
+          "template": "{username} a {match_count} matchs mais toujours célibataire. Collectionneur ou stratège ? 🃏",
+          "variables": ["username", "match_count"]
+        },
+        {
+          "id": "sar_007",
+          "template": "{username} like, match… puis disparaît. Un Houdini du dating 🎩✨",
+          "variables": ["username"]
+        },
+        {
+          "id": "sar_008",
+          "template": "{username} croit encore qu'on peut matcher sans photo. Même les astres abandonnent 🌌😂",
+          "variables": ["username"]
+        },
+        {
+          "id": "sar_009",
+          "template": "{username} veut seulement 1m85, yeux verts, né un mardi, ascendant Taureau. Bonne chance 🧙‍♂️",
+          "variables": ["username"]
+        },
+        {
+          "id": "sar_010",
+          "template": "{username} n'a rien écrit dans sa bio. Bienvenue dans l'escape game МойDate 🔐😂",
+          "variables": ["username"]
+        },
+        {
+          "id": "sar_011",
+          "template": "Tu as passé {time_spent} minutes à optimiser ton profil... pour ensuite swiper en 0.3 secondes. La logique МойDate 🤷‍♂️",
+          "variables": ["time_spent"]
+        },
+        {
+          "id": "sar_012",
+          "template": "{username} a mis 'spontané' dans sa bio mais planifie ses dates 3 semaines à l'avance 📅😏",
+          "variables": ["username"]
+        },
+        {
+          "id": "sar_013",
+          "template": "Statistique du jour: {percentage}% des utilisateurs disent 'chercher du sérieux'. Les autres sont juste honnêtes 🎯",
+          "variables": ["percentage"]
+        },
+        {
+          "id": "sar_014",
+          "template": "{username} dit détester le drama... mais change son statut relationnel tous les mardis 🎭",
+          "variables": ["username"]
+        },
+        {
+          "id": "sar_015",
+          "template": "Observation: {username} swipe uniquement sur les profils avec des animaux. Plot twist: les animaux ne sont pas célibataires 🐕💔",
+          "variables": ["username"]
+        }
+      ]
+    },
+
+    "funny": {
+      "name": "Drôle",
+      "icon": "🤣",
+      "gradient": { "from": "#f093fb", "to": "#f5576c" },
+      "templates": [
+        {
+          "id": "fun_001",
+          "template": "⭐ {username} ({sign}) récolte {like_count} likes cette semaine. Bientôt il/elle ouvre un fan club officiel 😎",
+          "variables": ["username", "sign", "like_count"]
+        },
+        {
+          "id": "fun_002",
+          "template": "💘 {username} a liké {target_user} {repeat_count} fois. Persévérance ou déclaration d'amour ? 😂",
+          "variables": ["username", "target_user", "repeat_count"]
+        },
+        {
+          "id": "fun_003",
+          "template": "{username} envoie plus d'émojis que de mots. Prochain level : écrire une romance entière en 🍕❤️😂",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_004",
+          "template": "{username} a écrit à 12 personnes aujourd'hui. Quelqu'un peut lui rappeler que ce n'est pas un call center ? ☎️😂",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_005",
+          "template": "{username} vient d'ajouter son 9ème selfie. Prochain objectif : calendrier 2026 📅😏",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_006",
+          "template": "{username} a écrit une bio plus longue qu'un mémoire universitaire 📚😂",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_007",
+          "template": "{username} swipe à 3h du matin… l'amour ne dort jamais 🌙💘",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_008",
+          "template": "{username} a résumé sa vie entière avec un seul emoji {emoji}. On attend le traducteur officiel 🤔😂",
+          "variables": ["username", "emoji"]
+        },
+        {
+          "id": "fun_009",
+          "template": "{username} a déjà envoyé 15 memes aujourd'hui. On dirait un compte МойDate humoristique 📲",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_010",
+          "template": "{username} parle plus de bouffe que d'amour 🍕🍣. Swipe si tu veux des dates au resto !",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_011",
+          "template": "La bio de {username} rime… du Baudelaire en mode МойDate 🎭",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_012",
+          "template": "{username} réagit à TOUT avec 🔥🔥🔥. Même une photo de chien 🐕😅",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_013",
+          "template": "{username} a plus de photos de {pet_name} que de lui/elle. Faut matcher avec qui au final ? 🐶😂",
+          "variables": ["username", "pet_name"]
+        },
+        {
+          "id": "fun_014",
+          "template": "{username} est connecté 24/7. Soit il/elle cherche vraiment l'amour… soit il/elle bosse pour МойDate 😅",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_015",
+          "template": "{username} a ajouté 'influenceur МойDate' dans sa bio. Prochain objectif : sponsoriser son premier match 🤳😂",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_016",
+          "template": "Fun fact: {username} a plus de matchs que de messages envoyés. Collection ou timidité ? 🤐",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_017",
+          "template": "{username} utilise le traducteur pour chaque message. L'amour est vraiment universel 🌍💬",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_018",
+          "template": "Breaking news: {username} vient de découvrir le bouton Super Like. RIP son portefeuille 💎😂",
+          "variables": ["username"]
+        },
+        {
+          "id": "fun_019",
+          "template": "{username} a changé de photo de profil {count} fois cette semaine. Crise existentielle ou indécision ? 🤔",
+          "variables": ["username", "count"]
+        },
+        {
+          "id": "fun_020",
+          "template": "Alerte: {username} vient de mettre à jour sa bio pour la {count}ème fois. Qui es-tu vraiment ? 🎭",
+          "variables": ["username", "count"]
+        }
+      ]
+    },
+
+    "romantic": {
+      "name": "Romantique",
+      "icon": "💕",
+      "gradient": { "from": "#fa709a", "to": "#fee140" },
+      "templates": [
+        {
+          "id": "rom_001",
+          "template": "🌍 Nouveau match ! {userA} {flagA} + {userB} {flagB}. Ça sent les débats pimentés 🌶️ et les câlins glacés ❄️",
+          "variables": ["userA", "flagA", "userB", "flagB"]
+        },
+        {
+          "id": "rom_002",
+          "template": "🎬 {userA} + {userB}… ils s'écrivent plus que les scénaristes de Netflix. Un couple en préparation ? 👀",
+          "variables": ["userA", "userB"]
+        },
+        {
+          "id": "rom_003",
+          "template": "Jessica ♌︎ + Ivan ♑︎ … on dirait la saison 2 d'un drama Netflix 💕🔥",
+          "variables": []
+        },
+        {
+          "id": "rom_004",
+          "template": "{username} a confirmé un match 3 secondes après le like. Coup de foudre ou vitesse éclair ⚡?",
+          "variables": ["username"]
+        },
+        {
+          "id": "rom_005",
+          "template": "💫 {userA} et {userB} viennent d'échanger leur premier message. Le début d'une belle histoire ? On parie dessus !",
+          "variables": ["userA", "userB"]
+        },
+        {
+          "id": "rom_006",
+          "template": "🌹 {userA} {signA} + {userB} {signB} = compatibilité astrologique maximale ! Les étoiles se sont alignées ✨",
+          "variables": ["userA", "signA", "userB", "signB"]
+        },
+        {
+          "id": "rom_007",
+          "template": "Couple МойDate officiel : {userA} + {userB} ont franchi le cap ! De match à relation en {days} jours 💍",
+          "variables": ["userA", "userB", "days"]
+        },
+        {
+          "id": "rom_008",
+          "template": "{userA} et {userB} se sont envoyé {message_count} messages en 24h. L'algorithme sent l'amour dans l'air 💘",
+          "variables": ["userA", "userB", "message_count"]
+        },
+        {
+          "id": "rom_009",
+          "template": "Success story ! {userA} et {userB} célèbrent leur {months} mois ensemble. Merci МойDate ! 🎉❤️",
+          "variables": ["userA", "userB", "months"]
+        },
+        {
+          "id": "rom_010",
+          "template": "Premier date confirmé : {userA} + {userB} se rencontrent ce weekend. Tout le monde croise les doigts 🤞💕",
+          "variables": ["userA", "userB"]
+        },
+        {
+          "id": "rom_011",
+          "template": "L'amour interculturel à son meilleur : {userA} {flagA} enseigne sa langue à {userB} {flagB}. Duo parfait 🌍💕",
+          "variables": ["userA", "flagA", "userB", "flagB"]
+        },
+        {
+          "id": "rom_012",
+          "template": "Moment magique : {userA} et {userB} ont découvert qu'ils habitent à {distance}km l'un de l'autre. Le destin ? ✨",
+          "variables": ["userA", "userB", "distance"]
+        },
+        {
+          "id": "rom_013",
+          "template": "{userA} vient d'envoyer un Super Like à {userB}. Les grands gestes fonctionnent toujours 💎💘",
+          "variables": ["userA", "userB"]
+        },
+        {
+          "id": "rom_014",
+          "template": "Couple du jour : {userA} + {userB} partagent {common_interests} en commun. Match fait au paradis ! 🎯❤️",
+          "variables": ["userA", "userB", "common_interests"]
+        },
+        {
+          "id": "rom_015",
+          "template": "Belle histoire : {userA} et {userB} se sont rencontrés grâce à МойDate il y a {weeks} semaines. Aujourd'hui ? Inséparables 💕",
+          "variables": ["userA", "userB", "weeks"]
+        }
+      ]
+    },
+
+    "wisdom": {
+      "name": "Sagesse",
+      "icon": "💡",
+      "gradient": { "from": "#4facfe", "to": "#00f2fe" },
+      "templates": [
+        {
+          "id": "wis_001",
+          "template": "♏ Scorpions cette semaine : ils likent tout ce qui bouge. Courage aux Lions ♌ !",
+          "variables": []
+        },
+        {
+          "id": "wis_002",
+          "template": "Les Scorpions ♏︎ cette semaine ont décidé d'aimer TOUT le monde 😏. Les Lions ♌︎, préparez vos cœurs !",
+          "variables": []
+        },
+        {
+          "id": "wis_003",
+          "template": "Astuce МойDate : La patience est une vertu. Chaque swipe est une nouvelle opportunité, pas une course 🧘‍♀️",
+          "variables": []
+        },
+        {
+          "id": "wis_004",
+          "template": "Rappel du jour : L'authenticité attire l'authenticité. Soyez vous-même, c'est votre meilleur atout 💯",
+          "variables": []
+        },
+        {
+          "id": "wis_005",
+          "template": "Conseil МойDate : Prenez le temps de lire les bios. Les matchs de qualité valent mieux que la quantité 📖",
+          "variables": []
+        },
+        {
+          "id": "wis_006",
+          "template": "Statistique МойDate : Les conversations qui commencent par une question ont {percentage}% plus de chances de devenir une relation 💬",
+          "variables": ["percentage"]
+        },
+        {
+          "id": "wis_007",
+          "template": "Pensée du jour : L'amour interculturel n'est pas qu'une différence, c'est une richesse 🌍❤️",
+          "variables": []
+        },
+        {
+          "id": "wis_008",
+          "template": "Rappel МойDate : Les meilleurs couples sont ceux qui rient ensemble. Ne sous-estimez pas l'humour 😄💕",
+          "variables": []
+        },
+        {
+          "id": "wis_009",
+          "template": "Conseil du jour : Swiper moins, converser plus. La qualité des échanges fait la différence 💭",
+          "variables": []
+        },
+        {
+          "id": "wis_010",
+          "template": "Fun fact МойDate : {percentage}% des couples qui partagent leurs plats au premier date ont une 2ème rencontre 🍝",
+          "variables": ["percentage"]
+        },
+        {
+          "id": "wis_011",
+          "template": "Astuce compatibilité : Les signes d'eau ♓♋♏ s'entendent bien avec les signes de terre ♉♍♑. Les astres ne mentent pas ✨",
+          "variables": []
+        },
+        {
+          "id": "wis_012",
+          "template": "Rappel sécurité : Premières rencontres en lieux publics. МойDate veille sur vous ⚠️❤️",
+          "variables": []
+        },
+        {
+          "id": "wis_013",
+          "template": "Sagesse МойDate : La différence culturelle est une aventure, pas un obstacle. Ouvrez votre cœur 🌏",
+          "variables": []
+        },
+        {
+          "id": "wis_014",
+          "template": "Observation : Les profils avec photos authentiques reçoivent {percentage}% plus de matchs de qualité 📸",
+          "variables": ["percentage"]
+        },
+        {
+          "id": "wis_015",
+          "template": "Conseil МойDate : Ne ghostez pas. Un simple message de politesse vaut mieux qu'un silence 🙏",
+          "variables": []
+        },
+        {
+          "id": "wis_016",
+          "template": "Philosophie МойDate : L'algorithme peut créer des matchs, mais c'est vous qui créez la magie 💫",
+          "variables": []
+        },
+        {
+          "id": "wis_017",
+          "template": "Pensée du jour : Apprendre une nouvelle langue pour quelqu'un qu'on aime, c'est le plus beau des cadeaux 🗣️❤️",
+          "variables": []
+        },
+        {
+          "id": "wis_018",
+          "template": "Rappel МойDate : Les Red flags existent pour une raison. Écoutez votre instinct 🚩",
+          "variables": []
+        },
+        {
+          "id": "wis_019",
+          "template": "Statistique : Les utilisateurs qui complètent leur profil à 100% ont {percentage}% plus de matchs 📊",
+          "variables": ["percentage"]
+        },
+        {
+          "id": "wis_020",
+          "template": "Sagesse du jour : L'amour ne connaît pas de frontières. МойDate le prouve chaque jour 🌍💕",
+          "variables": []
+        }
+      ]
+    },
+
+    "special": {
+      "name": "Événements Spéciaux",
+      "icon": "🎉",
+      "gradient": { "from": "#fa709a", "to": "#764ba2" },
+      "templates": [
+        {
+          "id": "spe_001",
+          "template": "🎊 МойDate célèbre {count} nouveaux couples cette semaine ! L'algorithme est fier de vous ❤️",
+          "variables": ["count"]
+        },
+        {
+          "id": "spe_002",
+          "template": "🏆 Record МойDate : {count} matchs interculturels aujourd'hui ! La diversité gagne 🌍",
+          "variables": ["count"]
+        },
+        {
+          "id": "spe_003",
+          "template": "💝 Saint-Valentin МойDate : {count} couples officiels à fêter ! L'amour est partout ✨",
+          "variables": ["count"]
+        },
+        {
+          "id": "spe_004",
+          "template": "🌟 Milestone МойDate : {username} vient de débloquer le badge '{badge_name}' ! Bravo champion 🏅",
+          "variables": ["username", "badge_name"]
+        },
+        {
+          "id": "spe_005",
+          "template": "🎭 МойDate Awards : {username} remporte le titre de 'Profil le plus créatif' ce mois-ci ! 👑",
+          "variables": ["username"]
+        }
+      ]
+    }
+  },
+
+  "meta": {
+    "totalTemplates": 110,
+    "categoriesCount": 5,
+    "variablesUsed": [
+      "username", "age", "sign", "like_count", "target_age", "target_origin",
+      "target_user", "repeat_count", "userA", "userB", "flagA", "flagB",
+      "match_count", "time_spent", "percentage", "emoji", "pet_name", "count",
+      "signA", "signB", "days", "message_count", "months", "distance",
+      "common_interests", "weeks", "badge_name", "report_count"
+    ]
+  }
+}

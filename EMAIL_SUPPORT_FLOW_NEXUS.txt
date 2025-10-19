@@ -1,0 +1,120 @@
+À: support@flow-nexus.ruv.io
+Sujet: [URGENT] rUv Balance Synchronization Bug - User d6a0de79-14fd-4d9a-bf11-23ef5da3f696
+
+---
+
+Bonjour l'équipe Flow Nexus,
+
+Je rencontre un problème critique de synchronisation des crédits rUv qui m'empêche d'utiliser les swarms cloud malgré avoir 602 crédits affichés dans mon profil.
+
+## INFORMATIONS UTILISATEUR
+
+User ID: d6a0de79-14fd-4d9a-bf11-23ef5da3f696
+Email: johaneoyaraht@gmail.com
+Username: @johanito203
+Organization: Midas Corp
+Plan: Free Tier
+
+## PROBLÈME
+
+**Symptôme:** Impossible d'initialiser des swarms cloud malgré des crédits suffisants visibles dans le profil.
+
+**Erreur reçue:**
+```
+{
+  "success": false,
+  "error": "Insufficient rUv credits (need 23, have 0)"
+}
+```
+
+**Incohérence détectée:**
+
+| Endpoint/Field | Valeur Attendue | Valeur Réelle | Status |
+|----------------|-----------------|---------------|--------|
+| GET /user_profile → ruv_credits | 602 | 602 | ✅ Correct |
+| GET /user_profile → credits_balance | 602 | 602 | ✅ Correct |
+| GET /ruv_balance → balance | 602 | **0** | ❌ **Incorrect** |
+| POST /swarm_init | Success | Error | ❌ **Bloqué** |
+
+## HISTORIQUE TRANSACTIONS
+
+Transaction 1 (Bonus login):
+- Type: bonus
+- Amount: +100 rUv
+- Description: "Daily login bonus (Day 1 streak)"
+- Balance après: 602 rUv
+- Date: 2025-10-04T17:59:47.913181+00:00
+
+Transaction 2 (Utilisation):
+- Type: usage
+- Amount: -10 rUv
+- Description: "swarm_init x1"
+- Balance après: 502 rUv
+- Date: 2025-10-04T17:59:47.913181+00:00
+
+**Balance attendu:** 502 rUv (ou 592 selon ordre)
+**Balance API retourné:** 0 rUv ❌
+
+## IMPACT
+
+Ce bug bloque complètement l'utilisation des fonctionnalités cloud:
+
+❌ Swarm initialization (besoin: 10-23 rUv)
+❌ Agent spawning cloud (besoin: 2-5 rUv)
+❌ Neural network training (besoin: 50-200 rUv)
+❌ Templates premium
+
+✅ Workaround temporaire: Hive Mind local (sans rUv)
+✅ Sandboxes E2B fonctionnent (utilisent credits_balance)
+
+## CONTEXTE PROJET
+
+Je développe МойDate, une application de rencontres, et j'ai besoin de Flow Nexus pour générer l'architecture backend microservices (11 services). La documentation technique complète est prête, mais ce bug m'empêche de démarrer le développement cloud.
+
+## TENTATIVES DE RÉSOLUTION
+
+1. ✅ Reconnexion (user_login) - Même problème persiste
+2. ✅ Redémarrage MCP server - Aucun changement
+3. ✅ Tentative allocation manuelle (app_store_earn_ruv) - Transaction créée mais balance reste 0
+4. ✅ Vérification transactions - Historique correct mais balance incohérente
+
+## DEMANDE
+
+Pourriez-vous:
+
+1. **[URGENT]** Investiguer la désynchronisation entre user_profile.ruv_credits et ruv_balance API
+2. Recalculer mon balance rUv à partir des transactions enregistrées
+3. M'indiquer si c'est un bug système ou spécifique à mon compte
+4. Fournir un workaround temporaire pour débloquer les swarms cloud
+
+## DISPONIBILITÉ
+
+Je suis disponible pour:
+- Fournir logs/données additionnelles
+- Session de debugging en direct
+- Tester correctifs en développement
+
+Timezone: UTC+3 (Moscow)
+Préférence contact: Email
+
+## RAPPORT TECHNIQUE COMPLET
+
+Un rapport de bug détaillé (150+ lignes) avec toutes les données techniques, hypothèses d'erreur, et logs complets est disponible ici:
+https://github.com/[votre-repo]/docs/BUG_REPORT_RUV_SYNC.md
+
+Ou je peux vous l'envoyer directement si nécessaire.
+
+## URGENCE
+
+Ce problème bloque le démarrage de notre projet en production. Nous sommes prêts à déployer mais attendons la résolution de ce bug pour utiliser les swarms cloud Flow Nexus.
+
+Merci infiniment pour votre aide rapide!
+
+Cordialement,
+Johane Oyaraht
+johaneoyaraht@gmail.com
+@johanito203
+
+---
+
+P.S.: En attendant la résolution, j'utilise Hive Mind local comme workaround, mais les fonctionnalités cloud seraient préférables pour notre scalabilité.
