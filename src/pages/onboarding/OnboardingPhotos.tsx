@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, Upload, X, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,8 +50,8 @@ export default function OnboardingPhotos() {
 
     if (mediaFiles.length + files.length > MAX_FILES) {
       toast({
-        title: "Upload limit reached",
-        description: `You can upload up to ${MAX_FILES} files.`,
+        title: "Limite atteinte",
+        description: `Vous pouvez ajouter jusqu'à ${MAX_FILES} fichiers.`,
         variant: "destructive",
       });
       return;
@@ -92,50 +92,34 @@ export default function OnboardingPhotos() {
   };
 
   const uploadHint = useMemo(() => {
-    if (!mediaFiles.length) return `Add up to ${MAX_FILES} photos or videos`;
-    return `${mediaFiles.length} / ${MAX_FILES} files selected`;
+    if (!mediaFiles.length) return `Ajoutez jusqu'à ${MAX_FILES} photos ou vidéos`;
+    return `${mediaFiles.length} / ${MAX_FILES} fichiers sélectionnés`;
   }, [mediaFiles.length]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 glass-surface border-b border-white/10">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full text-white/80">
               <ArrowLeft className="w-5 h-5" />
             </Button>
 
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white font-display">
-              Add Photos
-            </h1>
+            <h1 className="text-lg font-semibold text-white font-display">Photos</h1>
 
-            <div className="w-10" /> {/* Spacer */}
+            <div className="w-10" />
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-8 pb-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-display mb-2">
-              Show your best self
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">{uploadHint}</p>
+            <h2 className="text-3xl font-semibold text-white font-display mb-2">Montrez-vous</h2>
+            <p className="text-white/60">{uploadHint}</p>
           </div>
 
-          {/* Photo Grid */}
-          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:border-gray-800/50">
+          <div className="glass-panel rounded-2xl p-6 border border-white/10">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <AnimatePresence>
                 {mediaFiles.map((media, index) => (
@@ -145,7 +129,7 @@ export default function OnboardingPhotos() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ delay: index * 0.05 }}
-                    className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 shadow-md"
+                    className="group relative aspect-square overflow-hidden rounded-xl bg-white/5 border border-white/10"
                   >
                     {media.type === "image" ? (
                       <img src={media.url} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
@@ -160,40 +144,37 @@ export default function OnboardingPhotos() {
 
                     <button
                       onClick={() => removeFile(media.id)}
-                      className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-all group-hover:opacity-100 shadow-lg hover:scale-110"
+                      className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 text-white opacity-0 transition-all group-hover:opacity-100 shadow-lg hover:scale-110"
                     >
                       <X className="h-4 w-4" />
                     </button>
 
                     {index === 0 && (
-                      <div className="absolute bottom-2 left-2 px-2 py-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg">
-                        Main Photo
+                      <div className="absolute bottom-2 left-2 px-2 py-1 bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] text-white text-xs font-bold rounded-full shadow-lg">
+                        Photo principale
                       </div>
                     )}
                   </motion.div>
                 ))}
               </AnimatePresence>
 
-              {/* Upload Button */}
               {mediaFiles.length < MAX_FILES && (
                 <label
                   className={cn(
                     "aspect-square cursor-pointer rounded-xl border-2 border-dashed transition-all hover:scale-105",
                     "flex flex-col items-center justify-center gap-3",
-                    "bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20",
-                    "border-pink-300 dark:border-pink-700 hover:border-pink-500 dark:hover:border-pink-500",
-                    "hover:bg-pink-100 dark:hover:bg-pink-900/30",
+                    "bg-white/5 border-white/20 hover:border-white/40",
                     mediaFiles.length === 0 && "col-span-2 sm:col-span-3"
                   )}
                 >
                   <div className="flex flex-col items-center gap-2">
                     {mediaFiles.length === 0 ? (
-                      <ImageIcon className="h-16 w-16 text-pink-500" />
+                      <ImageIcon className="h-16 w-16 text-white/70" />
                     ) : (
-                      <Upload className="h-10 w-10 text-pink-500" />
+                      <Upload className="h-10 w-10 text-white/70" />
                     )}
-                    <span className="text-sm font-semibold text-pink-600 dark:text-pink-400">
-                      {mediaFiles.length === 0 ? "Add your first photo" : "Add more"}
+                    <span className="text-sm font-semibold text-white/70">
+                      {mediaFiles.length === 0 ? "Ajouter une première photo" : "Ajouter"}
                     </span>
                   </div>
                   <input type="file" accept="image/*,video/*" multiple onChange={handleFileChange} className="hidden" />
@@ -202,8 +183,8 @@ export default function OnboardingPhotos() {
             </div>
 
             {mediaFiles.length > 0 && (
-              <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
-                💡 Tip: Your first photo will be your main profile picture
+              <p className="text-xs text-center text-white/50 mt-4">
+                💡 La première photo devient votre photo principale
               </p>
             )}
           </div>
@@ -212,16 +193,16 @@ export default function OnboardingPhotos() {
             <Button
               onClick={handleContinue}
               disabled={!mediaFiles.length}
-              className="h-14 w-full rounded-xl bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white text-base font-semibold shadow-lg transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="h-14 w-full rounded-xl bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] text-white text-base font-semibold shadow-lg transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              Continue
+              Continuer
             </Button>
 
             <button
               onClick={handleSkip}
-              className="w-full py-3 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="w-full py-3 text-sm font-semibold text-white/60 hover:text-white transition-colors"
             >
-              Skip for now
+              Passer pour l'instant
             </button>
           </div>
         </motion.div>

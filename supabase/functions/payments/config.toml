@@ -1,0 +1,5 @@
+[[functions]]
+entrypoint = "index.ts"
+name = "payments"
+verify_jwt = false
+

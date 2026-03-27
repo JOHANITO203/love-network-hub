@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -108,8 +108,8 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
     { id: 'super_like', name: 'Super Likes', category: 'matches' },
     { id: 'profile_view', name: 'Vues de Profil', category: 'profile' },
     { id: 'match_reminder', name: 'Rappels Match', category: 'matches' },
-    { id: 'verification_approved', name: 'Vérification Approuvée', category: 'profile' },
-    { id: 'system_update', name: 'Mises à jour Système', category: 'system' },
+    { id: 'verification_approved', name: 'VÃ©rification ApprouvÃ©e', category: 'profile' },
+    { id: 'system_update', name: 'Mises Ã  jour SystÃ¨me', category: 'system' },
   ];
 
   return (
@@ -148,7 +148,7 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
             )}
           </SheetTitle>
           <SheetDescription>
-            Gérez vos notifications et préférences
+            GÃ©rez vos notifications et prÃ©fÃ©rences
           </SheetDescription>
         </SheetHeader>
 
@@ -164,13 +164,13 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
               value="settings"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all"
             >
-              Paramètres
+              ParamÃ¨tres
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="notifications" className="mt-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium">Récentes</h3>
+              <h3 className="text-sm font-medium">RÃ©centes</h3>
               <div className="flex gap-2">
                 {unreadCount > 0 && (
                   <Button
@@ -281,9 +281,9 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
                           }
                         >
                           {permission === 'granted'
-                            ? 'Autorisées'
+                            ? 'AutorisÃ©es'
                             : permission === 'denied'
-                            ? 'Refusées'
+                            ? 'RefusÃ©es'
                             : 'En attente'}
                         </span>
                       </p>
@@ -318,7 +318,7 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
                               {type.name}
                             </Label>
                             <p className="text-xs text-muted-foreground">
-                              Catégorie: {type.category}
+                              CatÃ©gorie: {type.category}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">

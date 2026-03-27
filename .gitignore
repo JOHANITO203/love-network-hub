@@ -38,6 +38,7 @@ memory/agents/*
 *.db-wal
 *.sqlite
 *.sqlite-journal
+.env
 *.sqlite-wal
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt

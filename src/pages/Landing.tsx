@@ -88,9 +88,24 @@ const Landing = () => {
             Politique de confidentialité
           </button>
         </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0, duration: 0.5 }}
+          className="mt-2 text-xs text-muted-foreground"
+        >
+          <button
+            className="underline hover:text-foreground"
+            onClick={() => navigate("/consents")}
+          >
+            Gérer mes consentements
+          </button>{" "}
+          à tout moment.
+        </motion.p>
       </motion.div>
     </div>
   );
 };
 
 export default Landing;
+

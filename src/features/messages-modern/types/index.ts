@@ -1,4 +1,4 @@
-/**
+﻿/**
  * МойDate - Messages Types
  * Type definitions for the modern Messages feature
  */
@@ -27,11 +27,10 @@ export interface Message {
     language: string;
     text: string;
   };
-  // For audio messages
   duration?: number; // in seconds
-  // For media
   thumbnail?: string;
   mediaUrl?: string;
+  mediaUrls?: string[];
 }
 
 export interface Activity {

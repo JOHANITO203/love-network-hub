@@ -1,4 +1,4 @@
-/**
+﻿/**
  * МойDate - Media Gallery Component
  * Photos and videos with upload/delete/reorder
  */
@@ -32,8 +32,7 @@ export const MediaGallery = ({
   const canAddMore = media.length < maxMedia;
 
   return (
-    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-3xl p-6 border border-border/50 dark:border-gray-800">
-      {/* Header */}
+    <div className="bento-card p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-foreground">Photos & Vidéos</h2>
         <span className="text-sm text-muted-foreground">
@@ -41,7 +40,6 @@ export const MediaGallery = ({
         </span>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-3 gap-3">
         <AnimatePresence mode="popLayout">
           {media.map((item, index) => (
@@ -54,16 +52,14 @@ export const MediaGallery = ({
               transition={{ duration: 0.3 }}
               onHoverStart={() => setHoveredIndex(index)}
               onHoverEnd={() => setHoveredIndex(null)}
-              className="relative aspect-square rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-800 group cursor-pointer"
+              className="relative aspect-square rounded-2xl overflow-hidden bg-white/5 border border-white/10 group cursor-pointer"
             >
-              {/* Image/Video */}
               <img
                 src={item.type === 'video' ? item.thumbnail : item.url}
                 alt={`Media ${index + 1}`}
                 className="w-full h-full object-cover"
               />
 
-              {/* Video Indicator */}
               {item.type === 'video' && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                   <Play className="w-8 h-8 text-white" fill="white" />
@@ -75,7 +71,6 @@ export const MediaGallery = ({
                 </div>
               )}
 
-              {/* Main Photo Star */}
               {index === mainPhotoIndex && (
                 <motion.div
                   initial={{ scale: 0 }}
@@ -86,7 +81,6 @@ export const MediaGallery = ({
                 </motion.div>
               )}
 
-              {/* Hover Actions */}
               {canEdit && hoveredIndex === index && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -119,7 +113,6 @@ export const MediaGallery = ({
             </motion.div>
           ))}
 
-          {/* Add Button */}
           {canEdit && canAddMore && onAdd && (
             <motion.button
               layout
@@ -128,16 +121,15 @@ export const MediaGallery = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onAdd}
-              className="aspect-square rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center gap-2 hover:border-love-primary dark:hover:border-love-primary transition-colors"
+              className="aspect-square rounded-2xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center gap-2 hover:border-love-primary transition-colors"
             >
-              <Plus className="w-8 h-8 text-gray-400 dark:text-gray-600" />
+              <Plus className="w-8 h-8 text-white/50" />
               <span className="text-xs text-muted-foreground">Ajouter</span>
             </motion.button>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Tips */}
       {canEdit && (
         <motion.p
           initial={{ opacity: 0 }}

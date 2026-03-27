@@ -1,9 +1,8 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, Sparkles, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import confetti from "canvas-confetti";
 
 const CONFETTI_DURATION = 2500;
 
@@ -19,14 +18,14 @@ export default function OnboardingComplete() {
         angle: 60,
         spread: 60,
         origin: { x: 0 },
-        colors: ["#FF6B9D", "#C44569", "#FFC048"],
+        colors: ["#ff4d6d", "#ff8b5a", "#5aa9ff"],
       });
       confetti({
         particleCount: 4,
         angle: 120,
         spread: 60,
         origin: { x: 1 },
-        colors: ["#FF6B9D", "#C44569", "#FFC048"],
+        colors: ["#ff4d6d", "#ff8b5a", "#5aa9ff"],
       });
 
       if (Date.now() < end) {
@@ -46,18 +45,16 @@ export default function OnboardingComplete() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black">
-      {/* Animated Background Heart */}
+    <div className="min-h-screen bg-background text-foreground">
       <motion.div
         className="fixed inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
         initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 3, opacity: 0.05 }}
+        animate={{ scale: 3, opacity: 0.04 }}
         transition={{ duration: 1.5 }}
       >
-        <Heart className="w-96 h-96 text-pink-500 fill-current" />
+        <Heart className="w-96 h-96 text-[#ff4d6d] fill-current" />
       </motion.div>
 
-      {/* Main Content */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
         <div className="w-full max-w-2xl">
           <motion.div
@@ -66,83 +63,72 @@ export default function OnboardingComplete() {
             transition={{ delay: 0.2 }}
             className="space-y-8 text-center"
           >
-            {/* Success Icon */}
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
-              className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-red-500 shadow-2xl"
+              className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] shadow-2xl"
             >
-              <Check className="h-16 w-16 text-white" strokeWidth={3} />
+              <Check className="h-14 w-14 text-white" strokeWidth={3} />
             </motion.div>
 
-            {/* Title */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <h1 className="text-5xl font-bold text-gray-900 dark:text-white font-display mb-3">
-                All set!
-              </h1>
+              <h1 className="text-5xl font-semibold text-white font-display mb-3">Tout est prêt</h1>
               <div className="flex items-center justify-center gap-2">
-                <Sparkles className="w-6 h-6 text-pink-500" />
-                <p className="text-xl text-gray-600 dark:text-gray-400">
-                  Your profile looks amazing
-                </p>
-                <Sparkles className="w-6 h-6 text-pink-500" />
+                <Sparkles className="w-6 h-6 text-[#ff4d6d]" />
+                <p className="text-xl text-white/70">Votre profil est magnifique</p>
+                <Sparkles className="w-6 h-6 text-[#ff4d6d]" />
               </div>
             </motion.div>
 
-            {/* Description */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="text-lg text-gray-600 dark:text-gray-400 max-w-md mx-auto"
+              className="text-lg text-white/60 max-w-md mx-auto"
             >
-              You're ready to start your journey. Let's find your perfect match!
+              Vous êtes prêt à matcher et discuter en toute simplicité.
             </motion.p>
 
-            {/* Features List */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="max-w-md mx-auto bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:border-gray-800/50"
+              className="max-w-md mx-auto glass-panel rounded-2xl p-6 border border-white/10"
             >
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                What's next?
-              </h3>
+              <h3 className="text-lg font-semibold text-white mb-4">À suivre</h3>
               <div className="space-y-3 text-left">
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-red-500 flex items-center justify-center text-white text-sm font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] flex items-center justify-center text-white text-sm font-bold">
                     1
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <strong>Discover</strong> amazing profiles near you
+                  <p className="text-sm text-white/70">
+                    <strong>Découvrir</strong> des profils proches
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-red-500 flex items-center justify-center text-white text-sm font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] flex items-center justify-center text-white text-sm font-bold">
                     2
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <strong>Match</strong> with people you like
+                  <p className="text-sm text-white/70">
+                    <strong>Matcher</strong> avec ceux que vous aimez
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-red-500 flex items-center justify-center text-white text-sm font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] flex items-center justify-center text-white text-sm font-bold">
                     3
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <strong>Connect</strong> and start meaningful conversations
+                  <p className="text-sm text-white/70">
+                    <strong>Discuter</strong> avec traduction automatique
                   </p>
                 </div>
               </div>
             </motion.div>
 
-            {/* CTA Button */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -151,10 +137,10 @@ export default function OnboardingComplete() {
             >
               <Button
                 onClick={handleStart}
-                className="h-16 w-full rounded-xl bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white text-lg font-bold shadow-2xl transition-all hover:scale-[1.02]"
+                className="h-16 w-full rounded-xl bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] text-white text-lg font-bold shadow-2xl transition-all hover:scale-[1.02]"
               >
                 <Heart className="mr-3 h-6 w-6 fill-current" />
-                Start Matching
+                Commencer à matcher
               </Button>
             </motion.div>
           </motion.div>

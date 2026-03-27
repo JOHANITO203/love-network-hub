@@ -1,0 +1,5 @@
+[[functions]]
+entrypoint = "index.ts"
+name = "verification"
+verify_jwt = false
+

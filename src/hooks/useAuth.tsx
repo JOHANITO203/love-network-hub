@@ -63,10 +63,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const persistSession = (nextSession: MockSession | null) => {
-    if (nextSession) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession));
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
+    try {
+      if (nextSession) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession));
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (error) {
+      console.warn("Failed to persist session", error);
     }
   };
 
@@ -94,7 +98,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const signIn: AuthContextValue["signIn"] = async (email) => {
+  const signIn: AuthContextValue["signIn"] = async (email, _password) => {
     try {
       await delay();
       const newUser: MockUser = {

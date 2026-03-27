@@ -1,91 +1,103 @@
-/**
- * МойDate - Premium Card Component
- * Premium features showcase and payment options
- */
-
-import { motion } from 'framer-motion';
-import { Crown, Zap, Undo, Eye, Filter, Star, CreditCard } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import type { PaymentMethod } from '../types';
+﻿import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Crown, Zap, Undo, Eye, Filter, Star, CreditCard } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { PaymentMethod } from "../types";
+import { usePremium } from "@/hooks/usePremium";
 
 interface PremiumCardProps {
   isPremium: boolean;
   premiumExpiry?: string;
-  onUpgrade: () => void;
+  onUpgrade?: () => void;
 }
 
 const PREMIUM_FEATURES = [
   {
     icon: <Zap className="w-5 h-5" />,
-    title: 'Boost mensuel',
-    description: 'Profil boosté pendant 30 min',
+    title: "Boost mensuel",
+    description: "Profil boosté pendant 30 min",
   },
   {
     icon: <Eye className="w-5 h-5" />,
-    title: 'Voir qui a liké',
-    description: 'Accès illimité aux likes',
+    title: "Voir qui a liké",
+    description: "Accès illimité aux likes",
   },
   {
     icon: <Undo className="w-5 h-5" />,
-    title: 'Undo swipe',
-    description: 'Annuler tes derniers swipes',
+    title: "Undo swipe",
+    description: "Annule tes derniers swipes",
   },
   {
     icon: <Filter className="w-5 h-5" />,
-    title: 'Filtres avancés',
-    description: 'Filtres exclusifs premium',
+    title: "Filtres avancés",
+    description: "Filtres exclusifs premium",
   },
   {
     icon: <Star className="w-5 h-5" />,
-    title: 'Superlikes illimités',
-    description: 'Pas de limite quotidienne',
+    title: "Superlikes illimités",
+    description: "Pas de limite quotidienne",
   },
 ];
 
-const PAYMENT_METHODS: { id: PaymentMethod; name: string; icon: string }[] = [
-  { id: 'yoomoney', name: 'YooMoney', icon: '💳' },
-  { id: 'mir', name: 'Mir', icon: '🏦' },
-  { id: 'qiwi', name: 'Qiwi', icon: '🔵' },
-  { id: 'apple_pay', name: 'Apple Pay', icon: '' },
-  { id: 'google_pay', name: 'Google Pay', icon: '🟢' },
-  { id: 'stripe', name: 'Carte bancaire', icon: '💳' },
+const PAYMENT_METHODS: { id: PaymentMethod; name: string; description: string }[] = [
+  { id: "yookassa", name: "YooKassa", description: "SBP, cartes MIR / Visa / Mastercard locales" },
+  { id: "cloudpayments", name: "CloudPayments", description: "MIR, Visa/Mastercard internationales" },
+  { id: "mir", name: "Carte MIR", description: "Paiement direct carte MIR" },
+  { id: "qiwi", name: "Qiwi", description: "Portefeuille Qiwi" },
+  { id: "apple_pay", name: "Apple Pay", description: "Safari iOS" },
+  { id: "google_pay", name: "Google Pay", description: "Chrome / Android" },
 ];
 
-export const PremiumCard = ({ isPremium, premiumExpiry, onUpgrade }: PremiumCardProps) => {
-  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
+export const PremiumCard = ({ isPremium, premiumExpiry }: PremiumCardProps) => {
+  const { loading: paymentLoading, products, createOrder, lastOrder } = usePremium();
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
+
+  useEffect(() => {
+    if (!selectedProductId && products.length > 0) {
+      setSelectedProductId(products[0].id);
+    }
+  }, [products, selectedProductId]);
+
+  const expiryLabel = useMemo(() => {
+    if (!premiumExpiry) return null;
+    const date = new Date(premiumExpiry);
+    return date.toLocaleDateString("fr-FR");
+  }, [premiumExpiry]);
+
+  const handleStartCheckout = () => {
+    setShowCheckout(true);
+  };
+
+  const handlePay = async (method: PaymentMethod) => {
+    if (!selectedProductId) return;
+    setSelectedMethod(method);
+    await createOrder(selectedProductId, method);
+  };
 
   if (isPremium) {
-    const expiryDate = premiumExpiry ? new Date(premiumExpiry) : null;
-
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-gradient-to-br from-yellow-400 via-orange-500 to-pink-500 rounded-3xl p-6 text-white relative overflow-hidden"
+        className="bento-card p-6 relative overflow-hidden"
       >
-        {/* Decorative */}
+        <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-orange-500/20 to-pink-500/20" />
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-
         <div className="relative">
           <div className="flex items-center gap-2 mb-4">
-            <Crown className="w-6 h-6" />
-            <h2 className="text-2xl font-bold">Membre Premium</h2>
+            <Crown className="w-6 h-6 text-yellow-400" />
+            <h2 className="text-2xl font-bold text-white">Membre Premium</h2>
           </div>
-
-          <p className="text-white/90 mb-4">
+          <p className="text-white/80 mb-4">
             Tu profites actuellement de tous les avantages premium.
           </p>
-
-          {expiryDate && (
-            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-3">
-              <p className="text-sm">
-                Expire le{' '}
-                <span className="font-semibold">
-                  {expiryDate.toLocaleDateString('fr-FR')}
-                </span>
+          {expiryLabel && (
+            <div className="bg-white/10 rounded-2xl p-3 border border-white/10">
+              <p className="text-sm text-white/80">
+                Expire le <span className="font-semibold text-white">{expiryLabel}</span>
               </p>
             </div>
           )}
@@ -95,21 +107,20 @@ export const PremiumCard = ({ isPremium, premiumExpiry, onUpgrade }: PremiumCard
   }
 
   return (
-    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-3xl p-6 border-2 border-yellow-500/50 dark:border-yellow-500/30 relative overflow-hidden">
-      {/* Decorative Gradient */}
+    <div className="bento-card p-6 relative overflow-hidden space-y-6">
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-yellow-400/20 to-pink-500/20 rounded-full blur-3xl" />
-
-      <div className="relative">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-4">
-          <Crown className="w-6 h-6 text-yellow-500" />
-          <h2 className="text-xl font-bold bg-gradient-to-r from-yellow-500 to-pink-500 bg-clip-text text-transparent">
-            Passer Premium
-          </h2>
+      <div className="relative space-y-6">
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Crown className="w-6 h-6 text-yellow-400" />
+            <h2 className="text-xl font-bold text-white">Passer Premium</h2>
+          </div>
+          <p className="text-sm text-white/60">
+            Boosts, likes illimités, filtres avancés et priorité dans le matching.
+          </p>
         </div>
 
-        {/* Features */}
-        <div className="space-y-3 mb-6">
+        <div className="space-y-3">
           {PREMIUM_FEATURES.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -118,94 +129,80 @@ export const PremiumCard = ({ isPremium, premiumExpiry, onUpgrade }: PremiumCard
               transition={{ delay: index * 0.05 }}
               className="flex items-start gap-3"
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-yellow-300">
                 {feature.icon}
               </div>
-              <div className="flex-1">
-                <div className="font-semibold text-foreground">{feature.title}</div>
-                <div className="text-sm text-muted-foreground">
-                  {feature.description}
-                </div>
+              <div>
+                <p className="text-sm font-semibold text-white">{feature.title}</p>
+                <p className="text-xs text-white/60">{feature.description}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Price */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gradient-to-r from-yellow-500/10 to-pink-500/10 dark:from-yellow-500/5 dark:to-pink-500/5 rounded-2xl p-4 mb-4 border border-yellow-500/20 dark:border-yellow-500/10"
-        >
-          <div className="text-center">
-            <div className="text-3xl font-bold bg-gradient-to-r from-yellow-500 to-pink-500 bg-clip-text text-transparent mb-1">
-              9.99€
-            </div>
-            <div className="text-sm text-muted-foreground">par mois</div>
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-yellow-300">Choisir une offre</h3>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {products.map((product) => (
+              <button
+                key={product.id}
+                onClick={() => setSelectedProductId(product.id)}
+                className={`rounded-xl border p-3 text-left transition ${
+                  selectedProductId === product.id
+                    ? "border-yellow-400 bg-yellow-400/10"
+                    : "border-white/10"
+                }`}
+              >
+                <p className="text-sm font-semibold text-white">{product.name}</p>
+                <p className="text-xs text-white/60">
+                  {(product.amount / 100).toLocaleString('fr-FR', {
+                    style: 'currency',
+                    currency: product.currency,
+                  })}
+                </p>
+              </button>
+            ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* Upgrade Button */}
-        {!showPaymentMethods ? (
+        {!showCheckout ? (
           <Button
-            onClick={() => setShowPaymentMethods(true)}
-            className="w-full bg-gradient-to-r from-yellow-500 to-pink-500 hover:from-yellow-600 hover:to-pink-600 text-white font-semibold h-12 rounded-xl shadow-lg"
+            className="w-full"
+            onClick={handleStartCheckout}
+            disabled={paymentLoading || !selectedProductId}
           >
-            <Crown className="w-5 h-5 mr-2" />
-            Débloquer Premium
+            <CreditCard className="w-4 h-4 mr-2" />
+            Voir les moyens de paiement
           </Button>
         ) : (
-          <>
-            {/* Payment Methods */}
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                Choisir un moyen de paiement
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                {PAYMENT_METHODS.map((method) => (
-                  <motion.button
-                    key={method.id}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setSelectedPayment(method.id)}
-                    className={`
-                      p-3 rounded-xl border-2 transition-all
-                      ${
-                        selectedPayment === method.id
-                          ? 'border-yellow-500 bg-yellow-500/10 dark:bg-yellow-500/5'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{method.icon}</span>
-                      <span className="text-sm font-medium text-foreground">
-                        {method.name}
-                      </span>
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-white">Choisir un moyen de paiement</h3>
+            <div className="grid gap-2">
+              {PAYMENT_METHODS.map((method) => (
+                <button
+                  key={method.id}
+                  onClick={() => handlePay(method.id)}
+                  className={`rounded-xl border p-3 text-left transition ${
+                    selectedMethod === method.id
+                      ? "border-yellow-400 bg-yellow-400/10"
+                      : "border-white/10"
+                  }`}
+                  disabled={paymentLoading}
+                >
+                  <p className="text-sm font-semibold text-white flex items-center gap-2">
+                    <CreditCard className="w-4 h-4" /> {method.name}
+                  </p>
+                  <p className="text-xs text-white/60">{method.description}</p>
+                </button>
+              ))}
             </div>
-
-            {/* Confirm Payment */}
-            <Button
-              onClick={onUpgrade}
-              disabled={!selectedPayment}
-              className="w-full bg-gradient-to-r from-yellow-500 to-pink-500 hover:from-yellow-600 hover:to-pink-600 text-white font-semibold h-12 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <CreditCard className="w-5 h-5 mr-2" />
-              Confirmer le paiement
-            </Button>
-
-            <button
-              onClick={() => setShowPaymentMethods(false)}
-              className="w-full mt-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              Annuler
-            </button>
-          </>
+            {lastOrder && (
+              <p className="text-xs text-white/50">
+                Commande #{lastOrder.id.slice(0, 8)} en attente de paiement via {lastOrder.provider}.
+                Rafraîchis l'écran après validation.
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>

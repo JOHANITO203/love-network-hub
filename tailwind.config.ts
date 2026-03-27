@@ -98,9 +98,9 @@ export default {
         xl: "1.5rem", // МойDate XL radius for cards (from cahier des charges)
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
-        display: ['Poppins', 'Inter', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
+        sans: ['Manrope', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+        display: ['Sora', 'Manrope', 'sans-serif'],
+        body: ['Manrope', 'sans-serif'],
       },
       fontSize: {
         xs: ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.02em' }],

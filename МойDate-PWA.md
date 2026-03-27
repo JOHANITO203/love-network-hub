@@ -181,6 +181,15 @@
 - Service Worker Workbox : cache-first (shell/assets), network-first (feed/chat), Background Sync (likes/messages), précache marketing. [R]
 - Notifications Web Push : abonnement SW (VAPID), backend push orchestrator, compatibilité iOS ≥ 16.4 (APNs via Safari) + fallback email. [F/R]
 - Assets : fonts auto-hébergées (fin Google Fonts), images responsive (`<Image/>` Next ou équivalent), lazy-loading avec dimensions pour CLS. [R]
+- Phase front actuelle (scan code) :  
+  - Landing (`src/pages/Landing.tsx`, index) → CTA signup/auth.  
+  - Auth/Onboarding (`src/pages/Auth.tsx`, `Signup*.tsx`, `pages/onboarding/*`, `ProfileSetupScreen.tsx`) → flux OTP mock, géoloc via BigDataCloud.  
+  - App post-login (`src/components/DatingApp.tsx`, `features/*`) → multiples sections (discover/matches/messages/social/profile) avec données mock et intégrations Supabase ponctuelles.  
+- Application des 4 étapes front sur chaque phase :  
+  1. Stabiliser (audit i18n UTF-8, nettoyage secrets, vérifier `vite build`).  
+  2. Couche PWA (manifest + SW, auto-hébergement assets, installabilité).  
+  3. Offline & consentements (bannières réseau, Background Sync, centre consentements).  
+  4. Connexions réelles (auth Supabase/VK, profils/localisation, Web Push). [R]
 
 ### Rôle Backend & Infra
 - Hébergement en Russie : Yandex Cloud ru-central1 ou VK Cloud (PostgreSQL 15 + PostGIS + pgvector, Redis, Object Storage S3-compatible). [F/R]
@@ -211,6 +220,46 @@
 - Runbooks : déploiement RU, rotation certificats, panne push (APNs/FCM), failover base, escalade conformité. [R]
 
 ## 2. Plan de développement réaliste vers le MVP PWA
+
+### Phase 0 – Mise au clair & durcissement (Terminé)
+- Audit i18n/UTF‑8, nettoyage secrets, suppression dépendances sensibles.
+- Build Vite validé, lint bloqué uniquement par legacy backend (`any`).
+- Choix stack Vite + vite-plugin-pwa acté.
+
+### Phase 1 – Fondations PWA (Terminé)
+- Manifest complet, Service Worker Workbox (cache-first shell, network-first données, Background Sync).
+- Polices auto-hébergées, bannière réseau/offline, file d’attente offline.
+- Consentements centralisés (`useConsent`, écran `/consents`).
+
+### Phase 2 – Auth, profils, localisation (En cours)
+- Flux auth encore mock (migration Supabase/VK ID à finaliser).
+- Geolocation : reverse BigDataCloud à remplacer par service RU, sync consentement biométrie/location encore partielle.
+- Onboarding relié aux stores existants mais fallback encore présent.
+
+### Phase 3 – Matching, chat, traduction (Partiel)
+- Chat WebSocket → Supabase Edge fonctionnel, offline queue en place.
+- Traduction Marian Edge + fallback Bergamot prévu.
+- Matching API encore dépendante de mocks/stores → durcissement Supabase/Tables restant à livrer.
+
+### Phase 4 – Notifications & Push (Terminé)
+- Abonnement Web Push VAPID + consentement, stockage `notification_outbox`/`notification_preferences`.
+- Fonction edge `notifications`, orchestrateur push, Notification Center branché.
+
+### Phase 5 – Vérification 18+, paiements, conformité (En cours)
+- Vérification 18+ : fonction edge `verification`, hook `useVerification`, UI carte profil (Sumsub mock → webhooks réels à connecter).
+- Paiements : fonction edge `payments`, hook `usePremium`, sélection YooKassa/CloudPayments (URLs mock) ; webhooks statut et success page à implémenter.
+- Conformité : self-service suppression/export compte, consentement biométrie RU, doc incidents Roskomnadzor encore à réaliser.
+
+### Phase 6 – Qualité & lancement (À venir)
+- Tests unitaires/E2E (matching, push, traduction, paiements) à écrire.
+- Audits Core Web Vitals + sécurité (CSP, headers, secrets) planifiés pour phase finale.
+
+#### Actions suivantes (priorité)
+1. Finaliser conformité RU (suppression/export compte, consentement biométrie, docs incidents) → Phase 5.
+2. Implémenter webhooks paiements (YooKassa/CloudPayments) + page confirmation/erreur.
+3. Migrer auth mock → flux Supabase/VK ID, durcir matching API (phase 2/3).
+4. Plan tests (unitaires + E2E) et audits perf/sécurité (phase 6).
+
 
 ### Phase 0 – Mise au clair & durcissement (1 semaine)
 - Recenser fonctionnalités actives/mocks : auth locale (`useAuth`), notifications, chat Supabase, matching stores locaux.

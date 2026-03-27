@@ -1,4 +1,4 @@
-/**
+﻿/**
  * МойDate - Messages Store
  * Mock localStorage-based store for messages data
  */
@@ -8,19 +8,19 @@ import { Conversation, Message, Activity, ConversationFilter } from '../types';
 const CONVERSATIONS_KEY = 'moydate_conversations';
 const ACTIVITIES_KEY = 'moydate_activities';
 
-// Mock conversations data
 const MOCK_CONVERSATIONS: Conversation[] = [
   {
     id: 'conv1',
     matchId: 'm1',
-    matchName: 'Sophie',
+    matchName: 'Anna',
     matchAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
     lastMessage: {
       id: 'msg1',
       conversationId: 'conv1',
       sender: 'them',
       type: 'text',
-      content: 'Hey! Comment ça va? On se voit ce weekend? 😊',
+      content: 'Hey, how was your day? 🙂',
+      translated: { language: 'ru', text: 'Привет, как прошел твой день? 🙂' },
       timestamp: new Date(Date.now() - 10 * 60 * 1000),
       status: 'seen',
     },
@@ -31,39 +31,63 @@ const MOCK_CONVERSATIONS: Conversation[] = [
     isTyping: false,
     messages: [
       {
+        id: 'msg1-0',
+        conversationId: 'conv1',
+        sender: 'them',
+        type: 'text',
+        content: 'Hey, how was your day? 🙂',
+        translated: { language: 'ru', text: 'Привет, как прошел твой день? 🙂' },
+        timestamp: new Date(Date.now() - 20 * 60 * 1000),
+        status: 'seen',
+      },
+      {
         id: 'msg1-1',
         conversationId: 'conv1',
         sender: 'me',
         type: 'text',
-        content: 'Salut! Oui carrément, ça me dit bien 😊',
-        timestamp: new Date(Date.now() - 30 * 60 * 1000),
+        content: 'It was great! I went to Red Square today.',
+        translated: { language: 'ru', text: 'Было отлично! Сегодня я была на Красной площади.' },
+        timestamp: new Date(Date.now() - 17 * 60 * 1000),
         status: 'seen',
       },
       {
-        id: 'msg1',
+        id: 'msg1-2',
         conversationId: 'conv1',
         sender: 'them',
         type: 'text',
-        content: 'Hey! Comment ça va? On se voit ce weekend? 😊',
-        timestamp: new Date(Date.now() - 10 * 60 * 1000),
+        content: 'Wow, I would love to go there! Send me some photos 📸',
+        translated: { language: 'ru', text: 'Ого, я бы хотела там побывать! Пришли фото 📸' },
+        timestamp: new Date(Date.now() - 14 * 60 * 1000),
         status: 'seen',
-        reactions: [
-          { emoji: '❤️', userId: 'me', timestamp: new Date() },
+      },
+      {
+        id: 'msg1-3',
+        conversationId: 'conv1',
+        sender: 'me',
+        type: 'image',
+        content: 'photos',
+        mediaUrls: [
+          'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=600',
+          'https://images.unsplash.com/photo-1486026757060-7abf9fb9a9b5?w=600',
+          'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600',
         ],
+        timestamp: new Date(Date.now() - 12 * 60 * 1000),
+        status: 'seen',
       },
     ],
   },
   {
     id: 'conv2',
     matchId: 'm2',
-    matchName: 'Lucas',
+    matchName: 'Alexei',
     matchAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
     lastMessage: {
       id: 'msg2',
       conversationId: 'conv2',
       sender: 'me',
       type: 'text',
-      content: 'Super! À bientôt alors 👋',
+      content: 'Looking forward to our date!',
+      translated: { language: 'ru', text: 'Жду нашего свидания!' },
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
       status: 'seen',
     },
@@ -79,7 +103,8 @@ const MOCK_CONVERSATIONS: Conversation[] = [
         conversationId: 'conv2',
         sender: 'me',
         type: 'text',
-        content: 'Super! À bientôt alors 👋',
+        content: 'Looking forward to our date!',
+        translated: { language: 'ru', text: 'Жду нашего свидания!' },
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
         status: 'seen',
       },
@@ -88,14 +113,15 @@ const MOCK_CONVERSATIONS: Conversation[] = [
   {
     id: 'conv3',
     matchId: 'm3',
-    matchName: 'Emma',
+    matchName: 'Diana',
     matchAvatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400',
     lastMessage: {
       id: 'msg3',
       conversationId: 'conv3',
       sender: 'them',
       type: 'text',
-      content: 'J\'adore cette photo! Tu as un super style 📸',
+      content: 'Good morning ☀️',
+      translated: { language: 'ru', text: 'Доброе утро ☀️' },
       timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       status: 'delivered',
     },
@@ -111,7 +137,8 @@ const MOCK_CONVERSATIONS: Conversation[] = [
         conversationId: 'conv3',
         sender: 'them',
         type: 'text',
-        content: 'J\'adore cette photo! Tu as un super style 📸',
+        content: 'Good morning ☀️',
+        translated: { language: 'ru', text: 'Доброе утро ☀️' },
         timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
         status: 'delivered',
       },
@@ -119,12 +146,11 @@ const MOCK_CONVERSATIONS: Conversation[] = [
   },
 ];
 
-// Mock activities data
 const MOCK_ACTIVITIES: Activity[] = [
   {
     id: 'act1',
     userId: 'm1',
-    userName: 'Sophie',
+    userName: 'Olga',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
     type: 'story',
     content: {
@@ -138,7 +164,7 @@ const MOCK_ACTIVITIES: Activity[] = [
   {
     id: 'act2',
     userId: 'm2',
-    userName: 'Lucas',
+    userName: 'Nikita',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
     type: 'story',
     content: {
@@ -152,12 +178,12 @@ const MOCK_ACTIVITIES: Activity[] = [
   {
     id: 'act3',
     userId: 'm3',
-    userName: 'Emma',
+    userName: 'Elena',
     avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400',
     type: 'status',
     content: {
       type: 'text',
-      text: 'À la recherche de nouvelles aventures! 🌍✨',
+      text: 'À la recherche de nouvelles aventures! ✨',
     },
     timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
     viewed: false,
@@ -165,9 +191,6 @@ const MOCK_ACTIVITIES: Activity[] = [
   },
 ];
 
-/**
- * Initialize conversations in localStorage
- */
 const initConversations = (): Conversation[] => {
   const stored = localStorage.getItem(CONVERSATIONS_KEY);
   if (stored) {
@@ -198,9 +221,6 @@ const initConversations = (): Conversation[] => {
   return MOCK_CONVERSATIONS;
 };
 
-/**
- * Initialize activities in localStorage
- */
 const initActivities = (): Activity[] => {
   const stored = localStorage.getItem(ACTIVITIES_KEY);
   if (stored) {
@@ -220,23 +240,14 @@ const initActivities = (): Activity[] => {
   return MOCK_ACTIVITIES;
 };
 
-/**
- * Get all conversations
- */
 export const getConversations = (): Conversation[] => {
   return initConversations();
 };
 
-/**
- * Get all activities
- */
 export const getActivities = (): Activity[] => {
   return initActivities();
 };
 
-/**
- * Filter conversations
- */
 export const filterConversations = (
   conversations: Conversation[],
   filter: ConversationFilter
@@ -258,9 +269,6 @@ export const filterConversations = (
   }
 };
 
-/**
- * Send message
- */
 export const sendMessage = (conversationId: string, message: Omit<Message, 'id' | 'timestamp' | 'status'>): Message => {
   const conversations = getConversations();
   const newMessage: Message = {
@@ -287,9 +295,6 @@ export const sendMessage = (conversationId: string, message: Omit<Message, 'id' 
   return newMessage;
 };
 
-/**
- * Mark conversation as read
- */
 export const markAsRead = (conversationId: string): void => {
   const conversations = getConversations();
   const updated = conversations.map(conv =>
@@ -298,9 +303,6 @@ export const markAsRead = (conversationId: string): void => {
   localStorage.setItem(CONVERSATIONS_KEY, JSON.stringify(updated));
 };
 
-/**
- * Toggle pin conversation
- */
 export const togglePin = (conversationId: string): void => {
   const conversations = getConversations();
   const updated = conversations.map(conv =>
@@ -309,9 +311,6 @@ export const togglePin = (conversationId: string): void => {
   localStorage.setItem(CONVERSATIONS_KEY, JSON.stringify(updated));
 };
 
-/**
- * Toggle favorite conversation
- */
 export const toggleFavorite = (conversationId: string): void => {
   const conversations = getConversations();
   const updated = conversations.map(conv =>
@@ -320,18 +319,12 @@ export const toggleFavorite = (conversationId: string): void => {
   localStorage.setItem(CONVERSATIONS_KEY, JSON.stringify(updated));
 };
 
-/**
- * Delete conversation
- */
 export const deleteConversation = (conversationId: string): void => {
   const conversations = getConversations();
   const updated = conversations.filter(conv => conv.id !== conversationId);
   localStorage.setItem(CONVERSATIONS_KEY, JSON.stringify(updated));
 };
 
-/**
- * Add reaction to message
- */
 export const addReaction = (conversationId: string, messageId: string, emoji: string): void => {
   const conversations = getConversations();
   const updated = conversations.map(conv => {
@@ -339,7 +332,6 @@ export const addReaction = (conversationId: string, messageId: string, emoji: st
       const messages = conv.messages.map(msg => {
         if (msg.id === messageId) {
           const reactions = msg.reactions || [];
-          // Remove existing reaction from this user if any
           const filtered = reactions.filter(r => r.userId !== 'me');
           return {
             ...msg,
@@ -356,9 +348,6 @@ export const addReaction = (conversationId: string, messageId: string, emoji: st
   localStorage.setItem(CONVERSATIONS_KEY, JSON.stringify(updated));
 };
 
-/**
- * Mark activity as viewed
- */
 export const markActivityViewed = (activityId: string): void => {
   const activities = getActivities();
   const updated = activities.map(act =>
@@ -367,9 +356,6 @@ export const markActivityViewed = (activityId: string): void => {
   localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(updated));
 };
 
-/**
- * Search in conversations and messages
- */
 export const searchMessages = (query: string): any[] => {
   if (!query.trim()) return [];
 
@@ -378,7 +364,6 @@ export const searchMessages = (query: string): any[] => {
   const lowerQuery = query.toLowerCase();
 
   conversations.forEach(conv => {
-    // Search in match name
     if (conv.matchName.toLowerCase().includes(lowerQuery)) {
       results.push({
         type: 'conversation',
@@ -387,7 +372,6 @@ export const searchMessages = (query: string): any[] => {
       });
     }
 
-    // Search in messages
     conv.messages.forEach(msg => {
       if (msg.content.toLowerCase().includes(lowerQuery)) {
         results.push({

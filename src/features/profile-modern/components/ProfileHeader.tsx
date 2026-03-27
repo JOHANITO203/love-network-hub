@@ -22,14 +22,14 @@ export const ProfileHeader = ({ profile, onEdit }: ProfileHeaderProps) => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-3xl p-6 border border-border/50 dark:border-gray-800"
+      className="bento-card p-6"
     >
       <div className="flex items-start gap-6">
         {/* Avatar */}
         <div className="relative">
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg"
+            className="w-24 h-24 rounded-full overflow-hidden border-4 border-white/20 shadow-lg"
           >
             <img
               src={mainPhoto?.url || 'https://via.placeholder.com/200'}
@@ -44,7 +44,7 @@ export const ProfileHeader = ({ profile, onEdit }: ProfileHeaderProps) => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring' }}
-              className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-900"
+              className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[#0b0f1a]"
             >
               <Shield className="w-4 h-4 text-white" fill="currentColor" />
             </motion.div>
@@ -56,7 +56,7 @@ export const ProfileHeader = ({ profile, onEdit }: ProfileHeaderProps) => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: 'spring' }}
-              className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-900"
+              className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center border-2 border-[#0b0f1a]"
             >
               <Crown className="w-4 h-4 text-white" />
             </motion.div>

@@ -1,15 +1,17 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useConsent } from "@/hooks/useConsent";
 import type { OnboardingState } from "./types";
 
 export default function OnboardingLocation() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { updateConsent } = useConsent();
   const baseState = (location.state as OnboardingState) ?? {};
 
   const [loading, setLoading] = useState(false);
@@ -18,8 +20,8 @@ export default function OnboardingLocation() {
   const handleEnableLocation = () => {
     if (!("geolocation" in navigator)) {
       toast({
-        title: "Not supported",
-        description: "Geolocation is not available on this device.",
+        title: "Non pris en charge",
+        description: "La géolocalisation n'est pas disponible sur cet appareil.",
         variant: "destructive",
       });
       return;
@@ -31,7 +33,8 @@ export default function OnboardingLocation() {
       (position) => {
         setLoading(false);
         setLocationEnabled(true);
-        toast({ title: "Location enabled" });
+        void updateConsent("location", true);
+        toast({ title: "Localisation activée" });
 
         const payload: OnboardingState = {
           ...baseState,
@@ -48,9 +51,10 @@ export default function OnboardingLocation() {
       },
       () => {
         setLoading(false);
+        void updateConsent("location", false);
         toast({
-          title: "Unable to fetch location",
-          description: "Please check your permissions and try again.",
+          title: "Localisation impossible",
+          description: "Vérifiez vos permissions et réessayez.",
           variant: "destructive",
         });
       }
@@ -58,118 +62,94 @@ export default function OnboardingLocation() {
   };
 
   const handleSkip = () => {
+    void updateConsent("location", false);
     navigate("/onboarding/preferences", { state: baseState });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 glass-surface border-b border-white/10">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full text-white/80">
               <ArrowLeft className="w-5 h-5" />
             </Button>
 
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white font-display">
-              Location
-            </h1>
+            <h1 className="text-lg font-semibold text-white font-display">Localisation</h1>
 
-            <div className="w-10" /> {/* Spacer */}
+            <div className="w-10" />
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-8 pb-24">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center text-center space-y-8"
-        >
-          {/* Icon */}
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center space-y-8">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-red-500 shadow-xl"
+            className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] shadow-xl"
           >
-            <MapPin className="h-16 w-16 text-white" />
+            <MapPin className="h-14 w-14 text-white" />
           </motion.div>
 
-          {/* Content */}
           <div className="space-y-4 max-w-md">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-display">
-              Turn on location
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
-              Find matches nearby and see who's around you. You can change this later from your settings.
+            <h2 className="text-3xl font-semibold text-white font-display">Activer la localisation</h2>
+            <p className="text-white/60 text-lg">
+              Trouvez des profils proches et voyez la distance réelle. Vous pourrez changer ça plus tard.
             </p>
           </div>
 
-          {/* Benefits */}
-          <div className="w-full max-w-md space-y-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:border-gray-800/50">
+          <div className="w-full max-w-md space-y-3 glass-panel rounded-2xl p-6 border border-white/10">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold">
                 ✓
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 text-left">
-                Discover people near you
-              </p>
+              <p className="text-sm text-white/70 text-left">Découvrez des personnes proches</p>
             </div>
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold">
                 ✓
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 text-left">
-                See accurate distance to matches
-              </p>
+              <p className="text-sm text-white/70 text-left">Distance fiable sur chaque profil</p>
             </div>
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold">
                 ✓
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 text-left">
-                Get better match recommendations
-              </p>
+              <p className="text-sm text-white/70 text-left">Recommandations plus pertinentes</p>
             </div>
           </div>
 
-          {/* Actions */}
           <div className="w-full max-w-md space-y-3">
             <Button
               onClick={handleEnableLocation}
               disabled={loading || locationEnabled}
-              className="h-14 w-full rounded-xl bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white text-base font-semibold shadow-lg transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="h-14 w-full rounded-xl bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] text-white text-base font-semibold shadow-lg transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Enabling...
+                  Activation...
                 </>
               ) : locationEnabled ? (
                 <>
                   <MapPin className="mr-2 h-5 w-5" />
-                  Location active
+                  Localisation active
                 </>
               ) : (
                 <>
                   <MapPin className="mr-2 h-5 w-5" />
-                  Enable location
+                  Activer la localisation
                 </>
               )}
             </Button>
 
             <button
               onClick={handleSkip}
-              className="w-full py-3 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="w-full py-3 text-sm font-semibold text-white/60 hover:text-white transition-colors"
             >
-              Skip for now
+              Passer pour l'instant
             </button>
           </div>
         </motion.div>

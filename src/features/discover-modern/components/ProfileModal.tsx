@@ -1,4 +1,4 @@
-/**
+﻿/**
  * МойDate - ProfileModal Component
  * Fullscreen profile view with carousel and actions
  */
@@ -49,15 +49,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   if (!profile) return null;
 
   const handleNextImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === profile.images.length - 1 ? 0 : prev + 1
-    );
+    setCurrentImageIndex((prev) => (prev === profile.images.length - 1 ? 0 : prev + 1));
   };
 
   const handlePrevImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? profile.images.length - 1 : prev - 1
-    );
+    setCurrentImageIndex((prev) => (prev === 0 ? profile.images.length - 1 : prev - 1));
   };
 
   const handleClose = () => {
@@ -72,26 +68,24 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
           onClick={handleClose}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.92, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
+            exit={{ scale: 0.92, opacity: 0 }}
             transition={{ type: 'spring', damping: 25 }}
             className="relative w-full h-full max-w-2xl mx-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-10 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+              className="absolute top-4 right-4 z-10 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
 
-            {/* Image Carousel */}
             <div className="relative w-full h-[70vh] bg-gray-900">
               <img
                 src={profile.images[currentImageIndex]}
@@ -99,33 +93,29 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 className="w-full h-full object-contain"
               />
 
-              {/* Image Navigation */}
               {profile.images.length > 1 && (
                 <>
                   <button
                     onClick={handlePrevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
 
-                  {/* Dots Indicator */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                     {profile.images.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
                         className={cn(
-                          "w-2 h-2 rounded-full transition-all duration-300",
-                          index === currentImageIndex
-                            ? "bg-white w-8"
-                            : "bg-white/50 hover:bg-white/75"
+                          'w-2 h-2 rounded-full transition-all duration-300',
+                          index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/75'
                         )}
                       />
                     ))}
@@ -133,26 +123,23 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 </>
               )}
 
-              {/* Verified Badge */}
               {profile.verified && (
-                <div className="absolute top-4 left-4 bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg">
-                  <Shield className="w-4 h-4 fill-current" />
-                  Verified
+                <div className="absolute top-4 left-4 bg-white/20 text-white px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg">
+                  <Shield className="w-4 h-4" />
+                  Vérifié
                 </div>
               )}
             </div>
 
-            {/* Profile Details */}
-            <div className="bg-white dark:bg-gray-900 h-[30vh] overflow-y-auto">
+            <div className="glass-surface h-[30vh] overflow-y-auto">
               <div className="p-6 space-y-6">
-                {/* Header */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                    <h1 className="text-3xl font-semibold text-white">
                       {profile.name}, {profile.age}
                     </h1>
                     {profile.zodiacSign && (
-                      <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium flex items-center gap-1">
+                      <span className="px-3 py-1 bg-white/10 text-white rounded-full text-xs font-medium flex items-center gap-1">
                         <Sparkles className="w-4 h-4" />
                         {profile.zodiacSign}
                       </span>
@@ -160,53 +147,45 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   </div>
 
                   {profile.profession && (
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-2">
+                    <div className="flex items-center gap-2 text-white/70 mb-2">
                       <Briefcase className="w-4 h-4" />
                       <span>{profile.profession}</span>
                     </div>
                   )}
 
                   {profile.location && (
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-2">
+                    <div className="flex items-center gap-2 text-white/70 mb-2">
                       <MapPin className="w-4 h-4" />
                       <span>
                         {profile.location}
-                        {profile.distance && ` • ${profile.distance} km away`}
+                        {profile.distance && ` • ${profile.distance} km`}
                       </span>
                     </div>
                   )}
 
                   {profile.height && (
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-2 text-white/70">
                       <Ruler className="w-4 h-4" />
                       <span>{profile.height} cm</span>
                     </div>
                   )}
                 </div>
 
-                {/* Bio */}
                 {profile.bio && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                      About
-                    </h3>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {profile.bio}
-                    </p>
+                    <h3 className="text-sm font-semibold text-white mb-2">Bio</h3>
+                    <p className="text-white/75 leading-relaxed">{profile.bio}</p>
                   </div>
                 )}
 
-                {/* Interests */}
                 {profile.interests && profile.interests.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                      Interests
-                    </h3>
+                    <h3 className="text-sm font-semibold text-white mb-3">Centres d'intérêt</h3>
                     <div className="flex flex-wrap gap-2">
                       {profile.interests.map((interest) => (
                         <span
                           key={interest}
-                          className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium"
+                          className="px-4 py-2 bg-white/10 text-white/80 rounded-full text-xs font-medium"
                         >
                           {interest}
                         </span>
@@ -215,13 +194,12 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   </div>
                 )}
 
-                {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-4 pt-4">
                   <Button
                     onClick={onMessage}
                     variant="outline"
                     size="lg"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 border-white/20 text-white hover:bg-white/10"
                   >
                     <MessageCircle className="w-5 h-5" />
                     Message
@@ -229,10 +207,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   <Button
                     onClick={onSuperLike}
                     size="lg"
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 flex items-center gap-2"
+                    className="bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 flex items-center gap-2"
                   >
                     <Star className="w-5 h-5 fill-current" />
-                    Super Like
+                    Super like
                   </Button>
                 </div>
 
@@ -243,29 +221,28 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                       handleClose();
                     }}
                     variant="outline"
-                    className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+                    className="text-rose-300 border-rose-300/40 hover:bg-rose-500/10"
                   >
-                    Skip
+                    Passer
                   </Button>
                   <Button
                     onClick={() => {
                       onLike();
                       handleClose();
                     }}
-                    className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"
+                    className="bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a]"
                   >
                     <Heart className="w-5 h-5 mr-2 fill-current" />
-                    Like
+                    Aimer
                   </Button>
                 </div>
 
-                {/* Report Button */}
                 <button
                   onClick={onReport}
-                  className="w-full text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center justify-center gap-2 py-2"
+                  className="w-full text-xs text-white/50 hover:text-white/70 flex items-center justify-center gap-2 py-2"
                 >
                   <Flag className="w-4 h-4" />
-                  Report or Block
+                  Signaler ou bloquer
                 </button>
               </div>
             </div>

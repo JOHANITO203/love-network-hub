@@ -142,7 +142,7 @@ export const OtpVerification = () => {
 
         <div className="text-center">
           <p className="text-5xl font-semibold tracking-tight text-[#1F1F33]">{formattedTimer}</p>
-          <p className="mt-6 text-lg text-[#57586C]">Type the verification code we�ve sent you</p>
+          <p className="mt-6 text-lg text-[#57586C]">Type the verification code we’ve sent you</p>
           {targetPhone ? <p className="mt-1 text-sm text-[#8C8D9E]">{targetPhone}</p> : null}
         </div>
 

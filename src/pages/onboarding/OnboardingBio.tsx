@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -50,75 +50,51 @@ export default function OnboardingBio() {
   const isMaxReached = selectedInterests.length >= MAX_INTERESTS;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 glass-surface border-b border-white/10">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full text-white/80">
               <ArrowLeft className="w-5 h-5" />
             </Button>
 
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white font-display">
-              About You
-            </h1>
+            <h1 className="text-lg font-semibold text-white font-display">À propos</h1>
 
-            <div className="w-10" /> {/* Spacer */}
+            <div className="w-10" />
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-8 pb-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-display mb-2">
-              Share your story
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Let people know what makes you unique
-            </p>
+            <h2 className="text-3xl font-semibold text-white font-display mb-2">Racontez-vous</h2>
+            <p className="text-white/60">Quelques phrases pour donner envie.</p>
           </div>
 
-          <div className="space-y-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:border-gray-800/50">
-            {/* Bio */}
+          <div className="space-y-6 glass-panel rounded-2xl p-6 border border-white/10">
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
-                placeholder="Describe yourself in a few sentences... What do you love? What are you looking for?"
+                placeholder="Qui êtes-vous ? Qu'aimez-vous ?"
                 value={bio}
                 onChange={(event) => setBio(event.target.value)}
                 className="min-h-32 resize-none text-base"
                 maxLength={500}
               />
-              <p className="text-right text-xs text-gray-500 dark:text-gray-400">
-                {bio.length}/500 characters
-              </p>
+              <p className="text-right text-xs text-white/50">{bio.length}/500</p>
             </div>
 
-            {/* Interests */}
             <div className="space-y-4">
               <div>
-                <Label>Interests</Label>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Select up to {MAX_INTERESTS} interests •{" "}
-                  <span className={cn(
-                    "font-medium",
-                    isMaxReached && "text-pink-600 dark:text-pink-400"
-                  )}>
-                    {selectedInterests.length} / {MAX_INTERESTS} selected
+                <Label>Centres d'intérêt</Label>
+                <p className="text-sm text-white/60 mt-1">
+                  Choisissez jusqu'à {MAX_INTERESTS} options •{' '}
+                  <span className={cn("font-medium", isMaxReached && "text-[#ff4d6d]")}>
+                    {selectedInterests.length} / {MAX_INTERESTS}
                   </span>
-                  {isMaxReached && " (limit reached)"}
+                  {isMaxReached && " (limite atteinte)"}
                 </p>
               </div>
 
@@ -139,10 +115,10 @@ export default function OnboardingBio() {
                       whileHover={!isDisabled ? { scale: 1.05 } : {}}
                       whileTap={!isDisabled ? { scale: 0.95 } : {}}
                       className={cn(
-                        "flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 border-2",
-                        isSelected && "border-transparent bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-md",
-                        !isSelected && !isDisabled && "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-300 dark:hover:border-pink-700",
-                        isDisabled && "cursor-not-allowed border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 opacity-40"
+                        "flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 border",
+                        isSelected && "border-transparent bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] text-white shadow-md",
+                        !isSelected && !isDisabled && "border-white/10 bg-white/5 hover:border-white/30",
+                        isDisabled && "cursor-not-allowed border-white/10 bg-white/5 opacity-40"
                       )}
                     >
                       <span className="text-lg">{item.icon}</span>
@@ -157,16 +133,16 @@ export default function OnboardingBio() {
           <div className="space-y-3">
             <Button
               onClick={handleContinue}
-              className="h-14 w-full rounded-xl bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white text-base font-semibold shadow-lg transition-all hover:scale-[1.02]"
+              className="h-14 w-full rounded-xl bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] text-white text-base font-semibold shadow-lg transition-all hover:scale-[1.02]"
             >
-              Continue
+              Continuer
             </Button>
 
             <button
               onClick={handleSkip}
-              className="w-full py-3 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="w-full py-3 text-sm font-semibold text-white/60 hover:text-white transition-colors"
             >
-              Skip for now
+              Passer pour l'instant
             </button>
           </div>
         </motion.div>

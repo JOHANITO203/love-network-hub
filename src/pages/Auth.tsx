@@ -78,10 +78,19 @@ const Auth = () => {
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
+  const handleSocialLogin = async (provider: string) => {
     toast({ title: "Connexion sociale", description: `Redirection vers ${provider}...` });
-    // TODO: Implémenter la connexion sociale
-    setTimeout(() => navigate("/app"), 1000);
+    setIsLoading(true);
+    try {
+      const mockEmail = `${provider.toLowerCase()}@moydate.dev`;
+      const { error } = await signIn(mockEmail, "social-login");
+      if (error) throw error;
+      navigate("/app");
+    } catch (error: any) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

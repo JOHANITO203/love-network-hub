@@ -15,7 +15,7 @@ export const StatsCard = ({ stats }: StatsCardProps) => {
   const isEngagementAboveAverage = stats.engagementVsAverage > 0;
 
   return (
-    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-3xl p-6 border border-border/50 dark:border-gray-800">
+    <div className="bento-card p-6">
       {/* Header */}
       <h2 className="text-xl font-bold text-foreground mb-6">Statistiques</h2>
 
@@ -60,7 +60,7 @@ export const StatsCard = ({ stats }: StatsCardProps) => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-gradient-to-br from-love-primary/10 to-love-secondary/10 dark:from-love-primary/5 dark:to-love-secondary/5 rounded-2xl p-4"
+        className="bg-white/5 rounded-2xl p-4 border border-white/10"
       >
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-foreground">Score d'engagement</span>
@@ -70,7 +70,7 @@ export const StatsCard = ({ stats }: StatsCardProps) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden mb-2">
+        <div className="relative h-2 bg-white/10 rounded-full overflow-hidden mb-2">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${stats.engagementScore}%` }}
@@ -131,7 +131,7 @@ const StatItem = ({ icon, label, value, change, color = 'text-gray-500' }: StatI
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.05 }}
-      className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4"
+      className="bg-white/5 rounded-2xl p-4 border border-white/10"
     >
       <div className={`${color} mb-2`}>{icon}</div>
       <div className="text-2xl font-bold text-foreground mb-1">

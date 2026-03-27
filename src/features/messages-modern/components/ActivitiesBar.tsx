@@ -1,4 +1,4 @@
-/**
+﻿/**
  * МойDate - ActivitiesBar Component
  * Horizontal scrolling stories/activities with colored halos
  */
@@ -19,8 +19,12 @@ export const ActivitiesBar: React.FC<ActivitiesBarProps> = ({
   if (activities.length === 0) return null;
 
   return (
-    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 py-4">
+    <div className="glass-surface border-b border-white/10 py-4">
       <div className="max-w-2xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-white/80">Stories</h3>
+          <span className="text-xs text-white/40">Moments récents</span>
+        </div>
         <div className="flex gap-4 overflow-x-auto no-scrollbar">
           {activities.map((activity, index) => (
             <motion.button
@@ -33,33 +37,27 @@ export const ActivitiesBar: React.FC<ActivitiesBarProps> = ({
               onClick={() => onActivityClick(activity)}
               className="flex-shrink-0 flex flex-col items-center gap-2 group"
             >
-              {/* Avatar with Halo */}
               <div className="relative">
-                {/* Halo Effect - Colored ring for new content */}
                 <div
                   className={cn(
-                    "absolute inset-0 rounded-full blur-sm transition-opacity duration-300",
-                    activity.viewed ? "opacity-0" : "opacity-100"
+                    'absolute inset-0 rounded-full blur-md transition-opacity duration-300',
+                    activity.viewed ? 'opacity-20' : 'opacity-100'
                   )}
                   style={{
                     background: activity.viewed
-                      ? 'transparent'
-                      : 'linear-gradient(135deg, #ff6b9d, #c084fc, #60a5fa, #fbbf24)',
+                      ? 'rgba(255,255,255,0.2)'
+                      : 'linear-gradient(135deg, #ff4d6d, #5aa9ff, #4bd4a6)',
                     padding: '3px',
                   }}
                 />
 
-                {/* Ring Container */}
                 <div
                   className={cn(
-                    "relative w-16 h-16 rounded-full p-0.5 transition-all duration-300",
-                    activity.viewed
-                      ? "bg-gray-300 dark:bg-gray-700"
-                      : "bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500"
+                    'relative w-16 h-16 rounded-full p-0.5 transition-all duration-300',
+                    activity.viewed ? 'bg-white/20' : 'bg-gradient-to-br from-[#ff4d6d] via-[#8b5cf6] to-[#5aa9ff]'
                   )}
                 >
-                  {/* Avatar */}
-                  <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-gray-900 p-0.5">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-[#0b0f1a] p-0.5">
                     <img
                       src={activity.avatar}
                       alt={activity.userName}
@@ -67,17 +65,15 @@ export const ActivitiesBar: React.FC<ActivitiesBarProps> = ({
                     />
                   </div>
 
-                  {/* New Badge */}
                   {!activity.viewed && (
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-pink-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-[#ff4d6d] to-[#ff8b5a] rounded-full flex items-center justify-center shadow-lg">
                       <span className="text-white text-xs font-bold">•</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Name */}
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300 max-w-[64px] truncate">
+              <span className="text-xs font-medium text-white/70 max-w-[64px] truncate">
                 {activity.userName}
               </span>
             </motion.button>

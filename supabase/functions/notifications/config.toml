@@ -1,0 +1,5 @@
+[[functions]]
+entrypoint = "index.ts"
+name = "notifications"
+verify_jwt = false
+

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -17,21 +17,13 @@ import { ThemeToggle } from "./ThemeToggle";
 
 import { MatchModal } from "./match/MatchModal";
 
-import { MatchesView, mockMatchesListing } from "@/features/matches";
-import { MatchesScreen } from "@/features/matches-modern";
 
 import {
-
   MessagesView,
-
   mockStories,
-
   mockMessages,
-
   ConversationView,
-
   mockConversations,
-
 } from "@/features/messages";
 
 import { MessagesScreen } from "@/features/messages-modern";
@@ -41,8 +33,6 @@ import { StoryViewer, mockStorySlides } from "@/features/stories";
 import { ProfileHub } from "@/features/profile";
 import { ProfileScreen } from "@/features/profile-modern";
 
-import { SocialFeedView } from "@/features/feed";
-import { SocialFeedScreen } from "@/features/social-modern";
 
 import { DiscoverMain } from "@/features/discover";
 import { Discover } from "@/features/discover-modern";
@@ -83,7 +73,7 @@ import { useMatching } from "@/hooks/useMatching";
 
 import heroImage from "@/assets/hero-love.jpg";
 
-type NavSection = "discover" | "matches" | "messages" | "social" | "profile";
+type NavSection = "discover" | "messages" | "profile";
 
 interface UserProfile {
 
@@ -269,7 +259,7 @@ export const DatingApp = () => {
 
         console.error(
 
-          "🚀 [FINALISATION] ERREUR: Profil invalide - on ne change pas profileSetupComplete",
+          "ðŸš€ [FINALISATION] ERREUR: Profil invalide - on ne change pas profileSetupComplete",
 
         );
 
@@ -283,7 +273,7 @@ export const DatingApp = () => {
 
     } catch (error) {
 
-      console.error("🚀 [FINALISATION] Error in handleProfileComplete:", error);
+      console.error("ðŸš€ [FINALISATION] Error in handleProfileComplete:", error);
 
       toast({
 
@@ -317,7 +307,7 @@ export const DatingApp = () => {
 
     toast({
 
-      title: "It's a match! 💕",
+      title: "It's a match! ðŸ’•",
 
       description: "You and this person liked each other!",
 
@@ -353,59 +343,8 @@ export const DatingApp = () => {
 
   };
 
-  const handleSocialLike = (postId: string) => {
-
-    setSocialPosts((posts) =>
-
-      posts.map((post) =>
-
-        post.id === postId
-
-          ? {
-
-              ...post,
-
-              isLiked: !post.isLiked,
-
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-
-            }
-
-          : post,
-
-      ),
-
-    );
-
-  };
-
-  const handleSocialComment = (postId: string) => {
-
-    toast({
-
-      title: "Comment feature coming soon!",
-
-      description: "We're working on making conversations even better.",
-
-    });
-
-  };
-
-  const handleSocialShare = (postId: string) => {
-
-    toast({
-
-      title: "Shared successfully!",
-
-      description: "This beautiful date story has been shared.",
-
-    });
-
-  };
-
   const renderDiscoverSection = () => <Discover />;
 
-  const renderMatchesSection = () => <MatchesScreen />;
 
   const renderMessagesSection = () => <MessagesScreen />;
 
@@ -449,17 +388,11 @@ export const DatingApp = () => {
 
         return renderDiscoverSection();
 
-      case "matches":
-
-        return renderMatchesSection();
 
       case "messages":
 
         return renderMessagesSection();
 
-      case "social":
-
-        return <SocialFeedScreen />;
 
       case "profile":
 
@@ -528,11 +461,11 @@ export const DatingApp = () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-subtle dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-950 dark:to-black">
+    <div className="min-h-screen bg-background text-foreground">
 
       {/* Header */}
 
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-border/50 dark:border-gray-800 p-4">
+      <header className="glass-surface border-b border-white/10 p-4">
 
         <div className="flex items-center justify-between max-w-md mx-auto">
 
@@ -540,9 +473,9 @@ export const DatingApp = () => {
 
             <Heart className="w-6 h-6 text-love-primary fill-current" />
 
-            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-xl font-semibold text-white">
 
-              МойDate
+              MoyDate
 
             </h1>
 
@@ -562,7 +495,7 @@ export const DatingApp = () => {
 
               onClick={handleSignOut}
 
-              className="text-muted-foreground hover:text-foreground"
+              className="text-white/60 hover:text-white"
 
             >
 
@@ -616,7 +549,7 @@ export const DatingApp = () => {
 
               title: "Chat ouvert",
 
-              description: `Commencez à discuter avec ${matchModalData.matchedUserName}`,
+              description: `Commencez Ã  discuter avec ${matchModalData.matchedUserName}`,
 
             });
 
@@ -633,3 +566,4 @@ export const DatingApp = () => {
   );
 
 };
+

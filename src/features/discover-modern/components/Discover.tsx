@@ -1,11 +1,10 @@
-/**
+﻿/**
  * МойDate - Discover Screen
  * Main discovery interface with swipe cards, filters, and modals
  */
 
 import { useState } from 'react';
-import { ArrowLeft, SlidersHorizontal } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { SlidersHorizontal, MapPin } from 'lucide-react';
 import { useDiscoverProfiles } from '../hooks/useDiscoverProfiles';
 import { useSwipe } from '../hooks/useSwipe';
 import { SwipeCard } from './SwipeCard';
@@ -16,11 +15,12 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export const Discover: React.FC = () => {
-  const navigate = useNavigate();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'swipe' | 'map'>('swipe');
 
   const {
+    profiles,
     currentProfile,
     loading,
     hasMore,
@@ -53,66 +53,77 @@ export const Discover: React.FC = () => {
   };
 
   const handleMessage = () => {
-
     // TODO: Navigate to messages or open chat
   };
 
   const handleReport = () => {
-
     // TODO: Open report/block modal
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 p-4">
+      <header className="sticky top-0 z-30 glass-surface border-b border-white/10 p-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="rounded-full"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          <div>
+            <h1 className="text-xl font-semibold text-white font-display">Découvrir</h1>
+            <div className="flex items-center gap-2 text-xs text-white/60 mt-1">
+              <MapPin className="w-3 h-3" />
+              Moscou • Voronej
+            </div>
+          </div>
 
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white font-display">
-            Discover
-          </h1>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-white/10 rounded-full p-1">
+              <button
+                onClick={() => setViewMode('swipe')}
+                className={cn(
+                  'px-3 py-1 rounded-full text-xs font-medium transition',
+                  viewMode === 'swipe' ? 'bg-white text-black' : 'text-white/60 hover:text-white'
+                )}
+              >
+                Swipe
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={cn(
+                  'px-3 py-1 rounded-full text-xs font-medium transition',
+                  viewMode === 'map' ? 'bg-white text-black' : 'text-white/60 hover:text-white'
+                )}
+              >
+                Carte
+              </button>
+            </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsFilterOpen(true)}
-            className="rounded-full"
-          >
-            <SlidersHorizontal className="w-5 h-5" />
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsFilterOpen(true)}
+              className="rounded-full text-white/80 hover:text-white"
+            >
+              <SlidersHorizontal className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-2xl mx-auto px-4 py-6">
         {loading ? (
-          // Loading State
-          <div className="flex items-center justify-center h-[600px]">
+          <div className="flex items-center justify-center h-[60vh]">
             <div className="text-center space-y-4">
               <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-gray-600 dark:text-gray-400 font-medium">
-                Finding matches for you...
-              </p>
+              <p className="text-white/60 font-medium">Recherche de profils...</p>
             </div>
           </div>
         ) : !currentProfile || !hasMore ? (
-          // Empty State
-          <div className="flex items-center justify-center h-[600px]">
+          <div className="flex items-center justify-center h-[60vh]">
             <div className="text-center space-y-6 max-w-md">
               <div className="text-6xl">💫</div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-display">
-                No More Profiles
+              <h2 className="text-2xl font-semibold text-white font-display">
+                Plus de profils
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                You've seen everyone in your area! Try adjusting your filters or check back later for new matches.
+              <p className="text-white/60">
+                Ajustez vos filtres ou revenez un peu plus tard pour découvrir de nouvelles personnes.
               </p>
               <div className="flex flex-col gap-3">
                 <Button
@@ -120,26 +131,69 @@ export const Discover: React.FC = () => {
                     resetFilters();
                     loadProfiles();
                   }}
-                  className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"
+                  className="bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a]"
                   size="lg"
                 >
-                  Reset Filters
+                  Réinitialiser les filtres
                 </Button>
-                <Button
-                  onClick={() => setIsFilterOpen(true)}
-                  variant="outline"
-                  size="lg"
-                >
-                  Adjust Filters
+                <Button onClick={() => setIsFilterOpen(true)} variant="outline" size="lg" className="border-white/20 text-white">
+                  Ajuster les filtres
                 </Button>
               </div>
             </div>
           </div>
+        ) : viewMode === 'map' ? (
+          <div className="space-y-6">
+            <div className="relative h-[60vh] rounded-[2rem] overflow-hidden glass-panel">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,77,109,0.25),transparent_55%),radial-gradient(circle_at_70%_40%,rgba(90,169,255,0.25),transparent_60%),linear-gradient(120deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))]" />
+              <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+
+              <div className="absolute top-10 left-10 glass-surface rounded-2xl px-4 py-3">
+                <p className="text-xs text-white/60">Zones actives</p>
+                <p className="text-sm text-white font-semibold">Moscou, Voronej</p>
+              </div>
+
+              <div className="absolute left-[25%] top-[30%]">
+                <div className="w-4 h-4 bg-[#ff4d6d] rounded-full shadow-[0_0_18px_rgba(255,77,109,0.7)]" />
+                <div className="mt-2 text-xs text-white/70">Moscou</div>
+              </div>
+              <div className="absolute right-[30%] bottom-[25%]">
+                <div className="w-4 h-4 bg-[#5aa9ff] rounded-full shadow-[0_0_18px_rgba(90,169,255,0.7)]" />
+                <div className="mt-2 text-xs text-white/70">Voronej</div>
+              </div>
+
+              <div className="absolute right-6 top-6 glass-panel rounded-2xl px-4 py-3">
+                <p className="text-xs text-white/60">Suggestions proches</p>
+                <p className="text-sm text-white font-semibold">{profiles.length} profils en ligne</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-white/80">À proximité</h3>
+              <div className="grid gap-3">
+                {profiles.slice(0, 3).map((profile) => (
+                  <div key={profile.id} className="glass-panel rounded-2xl p-4 flex items-center gap-3">
+                    <img src={profile.images[0]} alt={profile.name} className="w-12 h-12 rounded-full object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-white truncate">
+                        {profile.name}, {profile.age}
+                      </p>
+                      <p className="text-xs text-white/60 truncate">{profile.location}</p>
+                    </div>
+                    <button
+                      onClick={() => setViewMode('swipe')}
+                      className="text-xs text-white/70 hover:text-white"
+                    >
+                      Voir
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         ) : (
-          // Swipe Card Stack
           <div className="relative">
-            {/* Card Container */}
-            <div className="relative flex items-center justify-center h-[600px] mb-8">
+            <div className="relative flex items-center justify-center h-[70vh] mb-8">
               <SwipeCard
                 profile={currentProfile}
                 motionValues={motionValues}
@@ -151,7 +205,6 @@ export const Discover: React.FC = () => {
               />
             </div>
 
-            {/* Action Buttons */}
             <div className="space-y-4">
               <ActionButtons
                 onSkip={handleSkip}
@@ -161,21 +214,10 @@ export const Discover: React.FC = () => {
               />
               <KeyboardHints />
             </div>
-
-            {/* Stats Display (Dev Mode) */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl text-xs text-gray-600 dark:text-gray-400 font-mono">
-                <div className="font-semibold mb-2">Dev Stats:</div>
-                <div>Profile: {currentProfile?.id} ({currentProfile?.name})</div>
-                <div>Has More: {hasMore ? 'Yes' : 'No'}</div>
-                <div>Active Filters: {JSON.stringify(filters)}</div>
-              </div>
-            )}
           </div>
         )}
       </main>
 
-      {/* Profile Modal */}
       <ProfileModal
         profile={currentProfile}
         isOpen={isProfileModalOpen}
@@ -196,7 +238,6 @@ export const Discover: React.FC = () => {
         onReport={handleReport}
       />
 
-      {/* Filters Sidebar */}
       <FiltersSidebar
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}

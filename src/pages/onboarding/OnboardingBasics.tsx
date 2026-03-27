@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -99,51 +99,34 @@ export default function OnboardingBasics() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 glass-surface border-b border-white/10">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full text-white/80">
               <ArrowLeft className="w-5 h-5" />
             </Button>
 
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white font-display">
-              Basic Information
-            </h1>
+            <h1 className="text-lg font-semibold text-white font-display">Profil</h1>
 
-            <div className="w-10" /> {/* Spacer */}
+            <div className="w-10" />
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-8 pb-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-display mb-2">
-              Tell us about yourself
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              We'll use this to create your profile
-            </p>
+            <h2 className="text-3xl font-semibold text-white font-display mb-2">Quelques infos</h2>
+            <p className="text-white/60">Créez un profil clair et authentique.</p>
           </div>
 
-          <div className="space-y-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:border-gray-800/50">
+          <div className="space-y-6 glass-panel rounded-2xl p-6 border border-white/10">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First name *</Label>
+              <Label htmlFor="firstName">Prénom *</Label>
               <Input
                 id="firstName"
-                placeholder="Your first name"
+                placeholder="Votre prénom"
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
                 className="h-12 text-base"
@@ -151,10 +134,10 @@ export default function OnboardingBasics() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last name *</Label>
+              <Label htmlFor="lastName">Nom *</Label>
               <Input
                 id="lastName"
-                placeholder="Your last name"
+                placeholder="Votre nom"
                 value={lastName}
                 onChange={(event) => setLastName(event.target.value)}
                 className="h-12 text-base"
@@ -164,20 +147,18 @@ export default function OnboardingBasics() {
             <DatePickerModern
               value={birthDate}
               onChange={handleDateSelect}
-              label="Date of birth *"
-              placeholder="Select your birth date"
+              label="Date de naissance *"
+              placeholder="Sélectionnez votre date"
             />
 
             {zodiacSign && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="rounded-xl bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 p-4 text-center border border-pink-200 dark:border-pink-800"
+                className="rounded-xl bg-white/5 p-4 text-center border border-white/10"
               >
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Your zodiac sign</p>
-                <p className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent">
-                  {zodiacSign}
-                </p>
+                <p className="text-sm text-white/60 mb-1">Signe astrologique</p>
+                <p className="text-2xl font-bold text-white">{zodiacSign}</p>
               </motion.div>
             )}
           </div>
@@ -186,16 +167,16 @@ export default function OnboardingBasics() {
             <Button
               onClick={handleContinue}
               disabled={!firstName.trim() || !lastName.trim() || !birthDate}
-              className="h-14 w-full rounded-xl bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white text-base font-semibold shadow-lg transition-all hover:scale-[1.02]"
+              className="h-14 w-full rounded-xl bg-gradient-to-r from-[#ff4d6d] to-[#ff8b5a] text-white text-base font-semibold shadow-lg transition-all hover:scale-[1.02]"
             >
-              Continue
+              Continuer
             </Button>
 
             <button
               onClick={handleSkip}
-              className="w-full py-3 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="w-full py-3 text-sm font-semibold text-white/60 hover:text-white transition-colors"
             >
-              Skip for now
+              Passer pour l'instant
             </button>
           </div>
         </motion.div>

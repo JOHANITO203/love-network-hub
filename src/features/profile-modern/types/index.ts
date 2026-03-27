@@ -4,7 +4,7 @@
 
 export type RelationshipStatus = 'available' | 'chill' | 'busy';
 
-export type PaymentMethod = 'yoomoney' | 'mir' | 'qiwi' | 'apple_pay' | 'google_pay' | 'stripe';
+export type PaymentMethod = 'yookassa' | 'cloudpayments' | 'mir' | 'qiwi' | 'apple_pay' | 'google_pay';
 
 export interface UserProfile {
   id: string;

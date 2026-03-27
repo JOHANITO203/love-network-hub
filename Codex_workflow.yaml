@@ -1,0 +1,170 @@
+version: 1.0
+app: MoyDate
+agent: CodexIA
+language: fr
+model_basis: reddit_image_framework
+
+principes:
+  self_reflection: true   # grille 7 critères + réitération silencieuse
+  persistence_control: moderate
+  reasoning_effort: adaptive   # high/medium/low
+  syntax_guidelines: xml_markdown_blocks
+  tone: balanced
+  i18n_output: french
+  # Réf: fichiers de session
+  refs: ["debuter_session.txt", "poursuivre_travail.txt"]  # :contentReference[oaicite:10]{index=10}:contentReference[oaicite:11]{index=11}
+
+modules:
+  - name: resilience_protocol
+    trigger: ["token_window_exhausted", "new_chat_no_memory", "user_says:reprendre"]
+    actions:
+      - scan_recent_files
+      - parse_context_markers: ["CURRENT_STEP", "TODO", "CONTEXT", "etape_active"]
+      - rebuild_mini_brief_from_docs: "/docs/....md"
+      - if_incomplete_then_prompt_user: "Rappelle la dernière étape/feature en une phrase"
+      - switch_mode: "poursuivre_travail"
+  - name: truth_verification_policy
+    enforce: true
+    preflight:
+      - question: "Tout est-il factuel, sourcé et vérifiable ?"
+      - if_no: "Corriger ou dire: Je ne sais pas."
+    style:
+      neutral: true
+
+modes:
+  debuter_session:
+    phases: [0,1,2,3,4,5,6]
+    steps:
+      - Initialisation
+      - Diagnostic
+      - Action
+      - Verification
+  poursuivre_travail:
+    phases: [0,1,2,3,4,5,6]
+    steps:
+      - Chargement_Contexte
+      - Continuité
+      - Action
+      - Verification
+      - Sauvegarde
+    behavior:
+      paste_active_step: true   # "colle l'étape en cours" :contentReference[oaicite:12]{index=12}
+      avoid_repetition: true
+
+phases:
+  - id: 0
+    name: Mise au clair & durcissement
+    objective: "Nettoyer dettes critiques, stabiliser base PWA, sécuriser secrets."
+    inputs: ["codebase", "docs/....md"]
+    actions:
+      - audit_i18n_utf8
+      - cleanup_assets_and_secrets
+      - choose_build_tool: ["Next.js or Vite+PWA"]
+    deliverables:
+      - "rapport_audit.md"
+      - "plan_outillage.md"
+    DoD:
+      - "build CI/CD passe"
+      - "lint/tests OK"
+  - id: 1
+    name: Fondations PWA
+    objective: "Manifest, SW Workbox, offline léger, assets auto-hébergés."
+    actions:
+      - configure_manifest
+      - configure_workbox: ["cache-first shell", "network-first data", "bg-sync queue"]
+      - offline_banner_and_retry
+    deliverables:
+      - "manifest.webmanifest"
+      - "service-worker.js"
+    DoD:
+      - "Lighthouse PWA: installable = true"
+  - id: 2
+    name: Auth, profils, localisation
+    objective: "Email+OTP, VK ID OAuth, profils, géoloc opt-in/fallback."
+    actions:
+      - implement_email_otp
+      - integrate_vk_id
+      - profiles_forms_and_storage
+      - geoloc_opt_in_or_city_fallback
+    deliverables:
+      - "spec_auth.md"
+      - "screens_onboarding_profiles.png"
+    DoD:
+      - "test_e2e_onboarding vert"
+  - id: 3
+    name: Matching, chat, traduction
+    objective: "Matching pondéré basique, chat WebSocket, RU↔EN à la demande."
+    actions:
+      - scoring_rules_minimal
+      - websocket_chat_text
+      - translation_service_stub
+    deliverables:
+      - "matching_rules.md"
+      - "chat_contract.md"
+    DoD:
+      - "latence_message_p50<300ms"
+  - id: 4
+    name: Notifications & Push
+    objective: "Web Push VAPID (Android/Desktop), iOS≥16.4 via PWA installée, fallback email."
+    actions:
+      - sw_push_subscription
+      - backend_push_orchestrator
+      - ios_apns_notes
+    deliverables:
+      - "push_matrix.md"
+    DoD:
+      - "optin_rate_tracked"
+  - id: 5
+    name: Vérification 18+, paiements, conformité
+    objective: "Sumsub 18+ incitatif, YooKassa/CloudPayments, self-service RG/consentements."
+    actions:
+      - integrate_age_verification
+      - integrate_payments_psp_one
+      - consent_logs_and_exports
+    deliverables:
+      - "payments_webhooks.md"
+    DoD:
+      - "paiement_test_ok"
+  - id: 6
+    name: Qualité & lancement
+    objective: "Tests E2E, Core Web Vitals verts, sécurité/CSP, monitoring."
+    actions:
+      - e2e_tests
+      - performance_web_vitals
+      - security_headers_csp
+      - monitoring_slo_dashboards
+    DoD:
+      - "LCP<2.5s & INP<200ms & CLS<0.1"
+
+checklists:
+  preflight:
+    - "Auto‑réflexion 7 critères (>=5 OK):contentReference[oaicite:13]{index=13}"
+    - "Hypothèses notées (persistance):contentReference[oaicite:14]{index=14}"
+    - "Niveau d’effort adapté (high/medium/low):contentReference[oaicite:15]{index=15}"
+    - "Style/FR équilibré:contentReference[oaicite:16]{index=16}"
+    - "Si reprise: coller etape_active:contentReference[oaicite:17]{index=17}"
+  deliverable_quality:
+    - "Code modulaire & commenté"
+    - "Tests/lint CI OK"
+    - "Doc changelog & DoD cochés"
+
+outputs:
+  - "CHANGELOG.md"
+  - "SESSION_SUMMARY.md"
+  - "NEXT_STEPS.md"
+
+commit_template: >
+  feat(phase-{id}): {summary}
+  - contexte: {context_short}
+  - actions: {actions_bullets}
+  - DoD: {dod_checkmarks}
+  - refs: {issues_or_docs}
+
+qa_template: >
+  ## Tests
+  - unitaires: ...
+  - E2E: ...
+  ## Résultats
+  - latences, erreurs
+  ## Décisions
+  - ...

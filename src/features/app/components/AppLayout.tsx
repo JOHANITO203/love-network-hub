@@ -9,8 +9,6 @@ import { useFormatMessage } from "@/i18n/useFormatMessage";
 import {
   MessageCircle,
   Sparkles,
-  Heart,
-  Users,
   User,
   LogOut,
 } from "lucide-react";
@@ -30,22 +28,10 @@ const NAV_ITEMS: NavItemDefinition[] = [
     icon: Sparkles,
   },
   {
-    id: "matches",
-    labelId: "app.nav.matches",
-    path: "/app/matches",
-    icon: Heart,
-  },
-  {
     id: "messages",
     labelId: "app.nav.messages",
     path: "/app/messages",
     icon: MessageCircle,
-  },
-  {
-    id: "social",
-    labelId: "app.nav.social",
-    path: "/app/social",
-    icon: Users,
   },
   {
     id: "profile",
